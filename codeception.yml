@@ -1,0 +1,8 @@
+# global codeception file to run tests from all apps
+include:
+    - common
+    - fanyou
+paths:
+    log: common/runtime/logs
+settings:
+    colors: true

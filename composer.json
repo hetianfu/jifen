@@ -1,0 +1,80 @@
+{
+    "name": "fanyou/shop",
+    "description": "一个基于Yii2高级框架的商城",
+    "keywords": [
+        "yii2",
+        "framework",
+        "advanced",
+        "project template"
+    ],
+    "homepage": "http://www.fan-you.top/",
+    "type": "project",
+    "license": "Apache-2.0",
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.1.0",
+        "ext-json": "*",
+        "yiisoft/yii2": "~2.0.14",
+        "yiisoft/yii2-bootstrap": "~2.0.0",
+        "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0",
+        "yiisoft/yii2-imagine": "~2.0.0",
+        "yiisoft/yii2-elasticsearch": "2.1.x-dev",
+        "yiisoft/yii2-authclient": "~2.1.0",
+        "yiisoft/yii2-redis": "^2.0",
+        "yiisoft/yii2-queue": "dev-master",
+
+        "lokielse/omnipay-alipay": "^3.0",
+        "lokielse/omnipay-wechatpay": "^3.0",
+        "lokielse/omnipay-unionpay": "^3.0",
+
+
+        "linslin/yii2-curl": "*",
+
+        "ramsey/uuid": "^3.7",
+        "moontoast/math": "^1.1",
+        "vlucas/phpdotenv": "^3.0",
+
+
+        "unclead/yii2-multiple-input": "~2.0",
+        "zhuzhichao/ip-location-zh": "^2.4",
+        "phpoffice/phpspreadsheet": "^1.10",
+        "omnilight/yii2-scheduling": "*",
+        "league/flysystem": "^1.0",
+        "hashids/hashids": "^3.0",
+        "league/oauth2-server": "^7.4",
+        "kartik-v/yii2-widget-fileinput": "@dev",
+        "alibabacloud/client": "^1.5",
+
+        "casbin/casbin": "~1.0"
+    },
+    "require-dev": {
+        "yiisoft/yii2-debug": "~2.0.0",
+        "yiisoft/yii2-gii": "~2.0.0",
+        "yiisoft/yii2-faker": "~2.0.0",
+        "codeception/base": "^2.4.0",
+        "phpunit/phpunit": "~6.5.5",
+        "codeception/verify": "~1.0.0",
+
+        "php-coveralls/php-coveralls": "^2.1"
+},
+    "config": {
+        "process-timeout": 1800,
+        "fxp-asset": {
+            "enabled": false
+        }
+    },
+    "repositories": {
+        "0": {
+            "type": "composer",
+            "url": "https://mirrors.aliyun.com/composer/"
+        },
+        "1": {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        },
+        "2": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
+    }
+}

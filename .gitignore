@@ -1,0 +1,7 @@
+/.idea/*
+*.rar
+.env
+.idea/*
+/api/runtime/
+/api/config/cert/
+/task/
