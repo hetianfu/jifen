@@ -1,11 +1,42 @@
 Yii2 multiple input change log
 ==============================
 
-2.23.0 (in development)
+2.28.0 (in development)
 =======================
 
+2.27.0
+======
+- #367 (fix) ajax validation doesn't work for newly added/cloned inputs
+
+2.26.2
+======
+- prevent error loop in case of undefined $wrapper.data('multipleInput') (cebe)
+
+2.26.1
+======
+- remove version from composer.json
+
+2.26.0
+======
+- fix calculation of the current row index
+- fix incrementing the current row index after adding a new row 
+
+2.25.0
+======
+- rework cloning: fix #277, #351, #348 (unclead)
+
+2.24.0
+======
+- #339 don't set tabindex explicitly
+
+2.23.0
+======
+- always use `id` from the settings if it is specified
+- Ability to add custom tabindex via options array
+- #335 fix input name in case of one column and enabled sorting
+
 2.22.0
-=======================
+======
 - Ignore dev files in zip distribution (sup-ham)
 - #292 Fixed tests for last PHPUnit
 - Added support prepare values of attributes with same name as the relation

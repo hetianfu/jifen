@@ -1,10 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin;
-
-use Casbin\Exceptions\CasbinException;
 
 /**
  * Trait RbacApi.
@@ -22,9 +18,9 @@ trait RbacApi
      *
      * @return array
      */
-    public function getRolesForUser(string $name): array
+    public function getRolesForUser($name)
     {
-        return $this->model['g']['g']->rM->getRoles($name);
+        return $this->model->model['g']['g']->rM->getRoles($name);
     }
 
     /**
@@ -34,9 +30,9 @@ trait RbacApi
      *
      * @return array
      */
-    public function getUsersForRole(string $name): array
+    public function getUsersForRole($name)
     {
-        return $this->model['g']['g']->rM->getUsers($name);
+        return $this->model->model['g']['g']->rM->getUsers($name);
     }
 
     /**
@@ -47,7 +43,7 @@ trait RbacApi
      *
      * @return bool
      */
-    public function hasRoleForUser(string $name, string $role): bool
+    public function hasRoleForUser($name, $role)
     {
         $roles = $this->getRolesForUser($name);
 
@@ -63,8 +59,8 @@ trait RbacApi
      *
      * @return bool
      */
-    public function addRoleForUser(string $user, string $role): bool
-    { 
+    public function addRoleForUser($user, $role)
+    {
         return $this->addGroupingPolicy($user, $role);
     }
 
@@ -77,7 +73,7 @@ trait RbacApi
      *
      * @return bool
      */
-    public function deleteRoleForUser(string $user, string $role): bool
+    public function deleteRoleForUser($user, $role)
     {
         return $this->removeGroupingPolicy($user, $role);
     }
@@ -90,7 +86,7 @@ trait RbacApi
      *
      * @return bool
      */
-    public function deleteRolesForUser(string $user): bool
+    public function deleteRolesForUser($user)
     {
         return $this->removeFilteredGroupingPolicy(0, $user);
     }
@@ -103,7 +99,7 @@ trait RbacApi
      *
      * @return bool
      */
-    public function deleteUser($user): bool
+    public function deleteUser($user)
     {
         return $this->removeFilteredGroupingPolicy(0, $user);
     }
@@ -113,12 +109,10 @@ trait RbacApi
      *
      * @param string $role
      */
-    public function deleteRole(string $role): bool
+    public function deleteRole($role)
     {
-        $res1 = $this->removeFilteredGroupingPolicy(1, $role);
-        $res2 = $this->removeFilteredPolicy(0, $role);
-
-        return $res1 || $res2;
+        $this->removeFilteredGroupingPolicy(1, $role);
+        $this->removeFilteredPolicy(0, $role);
     }
 
     /**
@@ -129,7 +123,7 @@ trait RbacApi
      *
      * @return bool
      */
-    public function deletePermission(string ...$permission): bool
+    public function deletePermission(...$permission)
     {
         return $this->removeFilteredPolicy(1, ...$permission);
     }
@@ -143,7 +137,7 @@ trait RbacApi
      *
      * @return bool
      */
-    public function addPermissionForUser(string $user, string ...$permission): bool
+    public function addPermissionForUser($user, ...$permission)
     {
         $params = array_merge([$user], $permission);
 
@@ -159,7 +153,7 @@ trait RbacApi
      *
      * @return bool
      */
-    public function deletePermissionForUser(string $user, string ...$permission): bool
+    public function deletePermissionForUser($user, ...$permission)
     {
         $params = array_merge([$user], $permission);
 
@@ -174,7 +168,7 @@ trait RbacApi
      *
      * @return bool
      */
-    public function deletePermissionsForUser(string $user): bool
+    public function deletePermissionsForUser($user)
     {
         return $this->removeFilteredPolicy(0, $user);
     }
@@ -186,7 +180,7 @@ trait RbacApi
      *
      * @return array
      */
-    public function getPermissionsForUser(string $user): array
+    public function getPermissionsForUser($user)
     {
         return $this->getFilteredPolicy(0, $user);
     }
@@ -199,7 +193,7 @@ trait RbacApi
      *
      * @return bool
      */
-    public function hasPermissionForUser(string $user, string ...$permission): bool
+    public function hasPermissionForUser($user, ...$permission)
     {
         $params = array_merge([$user], $permission);
 
@@ -217,11 +211,11 @@ trait RbacApi
      * But getImplicitRolesForUser("alice") will get: ["role:admin", "role:user"].
      *
      * @param string $name
-     * @param string ...$domain
+     * @param string $domain
      *
      * @return array
      */
-    public function getImplicitRolesForUser(string $name, string ...$domain): array
+    public function getImplicitRolesForUser($name, $domain = '')
     {
         $res = [];
         $roleSet = [];
@@ -234,7 +228,7 @@ trait RbacApi
             $name = $q[0];
             $q = array_slice($q, 1);
 
-            $roles = $this->rm->getRoles($name, ...$domain);
+            $roles = $this->rm->getRoles($name, $domain);
             foreach ($roles as $r) {
                 if (!isset($roleSet[$r])) {
                     $res[] = $r;
@@ -259,26 +253,22 @@ trait RbacApi
      * But getImplicitPermissionsForUser("alice") will get: [["admin", "data1", "read"], ["alice", "data2", "read"]].
      *
      * @param string $user
-     * @param string ...$domain
+     * @param string $domain
      *
      * @return array
      */
-    public function getImplicitPermissionsForUser(string $user, string ...$domain): array
+    public function getImplicitPermissionsForUser($user, $domain = '')
     {
+        $roles[] = $user;
         $roles = array_merge(
-            [$user],
-            $this->getImplicitRolesForUser($user, ...$domain)
+            $roles,
+            $this->getImplicitRolesForUser($user, $domain)
         );
-
-        $len = \count($domain);
-        if ($len > 1) {
-            throw new CasbinException('error: domain should be 1 parameter');
-        }
 
         $res = [];
         foreach ($roles as $role) {
-            if (1 == $len) {
-                $permissions = $this->getPermissionsForUserInDomain($role, $domain[0]);
+            if ('' != $domain) {
+                $permissions = $this->getPermissionsForUserInDomain($role, $domain);
             } else {
                 $permissions = $this->getPermissionsForUser($role);
             }
@@ -302,7 +292,7 @@ trait RbacApi
      *
      * @return array
      */
-    public function getImplicitUsersForPermission(string ...$permission): array
+    public function getImplicitUsersForPermission(...$permission)
     {
         $subjects = $this->getAllSubjects();
         $roles = $this->getAllRoles();

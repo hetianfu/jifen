@@ -26,7 +26,7 @@ class AopAppGatewayTest extends AbstractGatewayTestCase
         $this->gateway = new AopAppGateway($this->getHttpClient(), $this->getHttpRequest());
         $this->gateway->setAppId($this->appId);
         $this->gateway->setPrivateKey(ALIPAY_AOP_PRIVATE_KEY);
-        //$this->gateway->setAlipayPublicKey(file_get_contents($this->appPrivateKey));
+        //$this->gateway->setAlipayPublicKey(file_get_contents($this->alipayPublicKey));
         //$this->gateway->setEncryptKey($this->appEncryptKey);
         //$this->gateway->setNotifyUrl('http://www.guoshuzc.com/api/pay/alipay_recharge_notify');
         //$this->gateway->setAlipaySdk('alipay_sdk');
@@ -48,6 +48,30 @@ class AopAppGatewayTest extends AbstractGatewayTestCase
                 ]
             ]
         )->send();
+        $this->assertTrue($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+        $this->assertNotEmpty($response->getOrderString());
+    }
+
+
+    public function testPurchaseUseCert()
+    {
+        $this->gateway->setAppId('2016101900723821');
+        $this->gateway->setSignType('RSA2');
+        $this->gateway->setPrivateKey(ALIPAY_ASSET_DIR . '/dist/cert/appPrivateKey');
+        $this->gateway->setAlipayRootCert(ALIPAY_ASSET_DIR . '/dist/cert/alipayRootCert.crt');
+        $this->gateway->setAlipayPublicCert(ALIPAY_ASSET_DIR . '/dist/cert/alipayCertPublicKey_RSA2.crt');
+        $this->gateway->setAppCert(ALIPAY_ASSET_DIR . '/dist/cert/appCertPublicKey.crt');
+        $this->gateway->setCheckAlipayPublicCert(true);
+
+        /** @var AopTradeAppPayResponse $response */
+        $response = $this->gateway->purchase()->setBizContent([
+            'subject' => 'test',
+            'out_trade_no' => date('YmdHis') . mt_rand(1000, 9999),
+            'total_amount' => '0.01',
+            'product_code' => 'QUICK_MSECURITY_PAY',
+        ])->send();
+
         $this->assertTrue($response->isSuccessful());
         $this->assertFalse($response->isRedirect());
         $this->assertNotEmpty($response->getOrderString());
@@ -77,56 +101,6 @@ class AopAppGatewayTest extends AbstractGatewayTestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertFalse($response->isRedirect());
         $this->assertNotEmpty($response->getOrderString());
-    }
-
-
-    public function testCompletePurchaseReturn()
-    {
-        $testPrivateKey = ALIPAY_ASSET_DIR . '/dist/common/rsa_private_key.pem';
-        $testPublicKey  = ALIPAY_ASSET_DIR . '/dist/common/rsa_public_key.pem';
-
-        $this->gateway = new AopAppGateway($this->getHttpClient(), $this->getHttpRequest());
-        $this->gateway->setAppId($this->appId);
-        $this->gateway->setPrivateKey($this->appPrivateKey);
-        $this->gateway->setNotifyUrl('https://www.example.com/notify');
-
-        $data = [
-            'memo'         => '',
-            'result'       => '{\"alipay_trade_app_pay_response\":{\"code\":\"10000\",\"msg\":\"Success\",\"app_id\":\"20151128008123456\",\"auth_app_id\":\"20151128008123456\",\"charset\":\"UTF-8\",\"timestamp\":\"2016-09-23 18:32:16\",\"total_amount\":\"0.01\",\"trade_no\":\"2016092321001003060123456789\",\"seller_id\":\"2088011466123456789\",\"out_trade_no\":\"201609231231447556\"},\"sign\":\"Q5n3zKIBzhBobd6Z6mP69ZvaBlVxkWOiti2ZCRBRhfEH8/sCWE89Iev94K++QH8W9Zakn9dXTq2tR0O5UWLS1XXgiSd+vUTMQNksxjddI39MQnbJ1hxEtwP5GcWzxeY9YRjXXJdzgdf/xmRS7uRQWv52cGYStlCNN/dianZmuDk=\",\"sign_type\":\"RSA\"}',
-            'resultStatus' => '9000'
-        ];
-
-        $result = json_decode(stripslashes($data['result']), true);
-
-        $signer = new Signer($result['alipay_trade_app_pay_response']);
-        $signer->setSort(false);
-        $signer->setEncodePolicy(Signer::ENCODE_POLICY_JSON);
-
-        $result['sign']      = $signer->signWithRSA($testPrivateKey);
-        $result['sign_type'] = 'RSA';
-
-        $result = addslashes(json_encode($result));
-
-        $data['result'] = $result;
-
-        $this->gateway->setAlipayPublicKey($testPublicKey);
-
-        try {
-            /** @var AopCompletePurchaseResponse $response */
-            $response = $this->gateway->completePurchase()->setParams($data)->send();
-        } catch (InvalidRequestException $e) {
-            $this->assertTrue(false);
-        }
-
-        $this->assertEquals(
-            '{"code":"10000","msg":"Success","app_id":"20151128008123456","auth_app_id":"20151128008123456","charset":"UTF-8","timestamp":"2016-09-23 18:32:16","total_amount":"0.01","trade_no":"2016092321001003060123456789","seller_id":"2088011466123456789","out_trade_no":"201609231231447556","sign":"jdl2MwvZLETOGMCrBvFuIHBlg+DUdd3fsuOqZWr78i1MRLoWOYWGoZNionb9hlW\/UwsRJU8D5Su1LgVADpQH9K\/yTjSH6eMQ4uZ+92QLsmeJxWWW2q85Ah36SULKMrJQDoap\/zWAl\/RV56BH8QpzBIPzby9idkt9VCIbIcSTaA0=","sign_type":"RSA"}',
-            json_encode($response->data())
-        );
-
-        $this->assertEquals('201609231231447556', $response->data('out_trade_no'));
-        $this->assertTrue($response->isSuccessful());
-        $this->assertTrue($response->isPaid());
-        $this->assertEquals('2016092321001003060123456789', $response->getData()['trade_no']);
     }
 
 

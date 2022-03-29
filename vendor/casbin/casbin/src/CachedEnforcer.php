@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin;
 
 /**
@@ -23,6 +21,11 @@ class CachedEnforcer extends Enforcer
     protected $enableCache;
 
     /**
+     * @var
+     */
+    protected static $locker;
+
+    /**
      * CachedEnforcer constructor.
      *
      * @param mixed ...$params
@@ -38,9 +41,9 @@ class CachedEnforcer extends Enforcer
     /**
      * determines whether to enable cache on Enforce(). When enableCache is enabled, cached result (true | false) will be returned for previous decisions.
      *
-     * @param bool $enableCache
+     * @param $enableCache
      */
-    public function enableCache(bool $enableCache): void
+    public function enableCache($enableCache)
     {
         $this->enableCache = $enableCache;
     }
@@ -51,11 +54,11 @@ class CachedEnforcer extends Enforcer
      *
      * @param mixed ...$rvals
      *
-     * @return bool
+     * @return bool|mixed
      *
      * @throws Exceptions\CasbinException
      */
-    public function enforce(...$rvals): bool
+    public function enforce(...$rvals)
     {
         if (!$this->enableCache) {
             return parent::enforce(...$rvals);
@@ -83,7 +86,7 @@ class CachedEnforcer extends Enforcer
     /**
      * deletes all the existing cached decisions.
      */
-    public function invalidateCache(): void
+    public function invalidateCache()
     {
         self::$m = [];
     }

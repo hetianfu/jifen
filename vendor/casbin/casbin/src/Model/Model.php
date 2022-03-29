@@ -1,10 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Model;
 
-use ArrayAccess;
 use Casbin\Config\Config;
 use Casbin\Config\ConfigContract;
 use Casbin\Log\Log;
@@ -13,20 +10,16 @@ use Casbin\Util\Util;
 /**
  * Class Model.
  *
- * @implements ArrayAccess<string|int, mixed>
- *
  * @author techlee@qq.com
  */
-class Model implements ArrayAccess
+class Model
 {
     use Policy;
 
     /**
-     * All of the Model items.
-     *
      * @var array
      */
-    protected $items = [];
+    public $model = [];
 
     protected $sectionNameMap = [
         'r' => 'request_definition',
@@ -45,9 +38,9 @@ class Model implements ArrayAccess
      * @param string         $sec
      * @param string         $key
      *
-     * @return bool
+     * @return bool|void
      */
-    private function loadAssertion(ConfigContract $cfg, string $sec, string $key): bool
+    private function loadAssertion($cfg, $sec, $key)
     {
         $value = $cfg->getString($this->sectionNameMap[$sec].'::'.$key);
 
@@ -59,16 +52,15 @@ class Model implements ArrayAccess
      *
      * @param string $sec
      * @param string $key
-     * @param string $value
+     * @param mixed  $value
      *
-     * @return bool
+     * @return bool|void
      */
-    public function addDef(string $sec, string $key, string $value): bool
+    public function addDef($sec, $key, $value)
     {
         if ('' == $value) {
-            return false;
+            return;
         }
-
         $ast = new Assertion();
         $ast->key = $key;
         $ast->value = $value;
@@ -82,17 +74,17 @@ class Model implements ArrayAccess
             $ast->value = Util::removeComments(Util::escapeAssertion($ast->value));
         }
 
-        $this->items[$sec][$key] = $ast;
+        $this->model[$sec][$key] = $ast;
 
         return true;
     }
 
     /**
-     * @param int $i
+     * @param $i
      *
      * @return string
      */
-    private function getKeySuffix(int $i): string
+    private function getKeySuffix($i)
     {
         if (1 == $i) {
             return '';
@@ -105,7 +97,7 @@ class Model implements ArrayAccess
      * @param ConfigContract $cfg
      * @param string         $sec
      */
-    private function loadSection(ConfigContract $cfg, string $sec): void
+    private function loadSection($cfg, $sec)
     {
         $i = 1;
         for (; ;) {
@@ -122,7 +114,7 @@ class Model implements ArrayAccess
      *
      * @return Model
      */
-    public static function newModel(): self
+    public static function newModel()
     {
         return new self();
     }
@@ -134,7 +126,7 @@ class Model implements ArrayAccess
      *
      * @return Model
      */
-    public static function newModelFromFile(string $path): self
+    public static function newModelFromFile($path)
     {
         $m = self::newModel();
 
@@ -150,7 +142,7 @@ class Model implements ArrayAccess
      *
      * @return Model
      */
-    public static function newModelFromString(string $text): self
+    public static function newModelFromString($text)
     {
         $m = self::newModel();
 
@@ -164,7 +156,7 @@ class Model implements ArrayAccess
      *
      * @param string $path
      */
-    public function loadModel(string $path): void
+    public function loadModel($path)
     {
         $cfg = Config::newConfig($path);
 
@@ -181,7 +173,7 @@ class Model implements ArrayAccess
      *
      * @param string $text
      */
-    public function loadModelFromText(string $text): void
+    public function loadModelFromText($text)
     {
         $cfg = Config::newConfigFromText($text);
 
@@ -196,10 +188,10 @@ class Model implements ArrayAccess
     /**
      * prints the model to the log.
      */
-    public function printModel(): void
+    public function printModel()
     {
         Log::logPrint('Model:');
-        foreach ($this->items as $k => $v) {
+        foreach ($this->model as $k => $v) {
             foreach ($v as $i => $j) {
                 Log::logPrintf('%s.%s: %s', $k, $i, $j->value);
             }
@@ -211,57 +203,8 @@ class Model implements ArrayAccess
      *
      * @return FunctionMap
      */
-    public static function loadFunctionMap(): FunctionMap
+    public static function loadFunctionMap()
     {
         return FunctionMap::loadFunctionMap();
-    }
-
-    /**
-     * Determine if the given Model option exists.
-     *
-     * @param mixed $offset
-     *
-     * @return bool
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->items[$offset]);
-    }
-
-    /**
-     * Get a Model option.
-     *
-     * @param mixed $offset
-     *
-     * @return mixed
-     */
-    public function offsetGet($offset)
-    {
-        return isset($this->items[$offset]) ? $this->items[$offset] : null;
-    }
-
-    /**
-     * Set a Model option.
-     *
-     * @param mixed $offset
-     * @param mixed $value
-     */
-    public function offsetSet($offset, $value)
-    {
-        if (is_null($offset)) {
-            $this->items[] = $value;
-        } else {
-            $this->items[$offset] = $value;
-        }
-    }
-
-    /**
-     * Unset a Model option.
-     *
-     * @param mixed $offset
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->items[$offset]);
     }
 }

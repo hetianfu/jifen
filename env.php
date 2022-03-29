@@ -3,7 +3,7 @@
  * Setup application environment
  */
 
-use Dotenv\Dotenv;
+ use Dotenv\Dotenv;
 
 if (file_exists(__DIR__ . '/.env')) {
     $dotenv = Dotenv::createImmutable(__DIR__);

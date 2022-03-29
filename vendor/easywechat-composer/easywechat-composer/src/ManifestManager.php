@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace EasyWeChatComposer;
 
+use Composer\Plugin\PluginInterface;
+
 class ManifestManager
 {
     const PACKAGE_TYPE = 'easywechat-extension';
@@ -66,6 +68,9 @@ class ManifestManager
 
         if (file_exists($installed = $this->vendorPath.'/composer/installed.json')) {
             $packages = json_decode(file_get_contents($installed), true);
+            if (version_compare(PluginInterface::PLUGIN_API_VERSION, '2.0.0', 'ge')) {
+                $packages = $packages['packages'];
+            }
         }
 
         $this->write($this->map($packages));
@@ -81,7 +86,9 @@ class ManifestManager
         $manifest = [];
 
         $packages = array_filter($packages, function ($package) {
-            return $package['type'] === self::PACKAGE_TYPE;
+            if(isset($package['type'])){
+                return $package['type'] === self::PACKAGE_TYPE;
+            }
         });
 
         foreach ($packages as $package) {

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin;
 
 /**
@@ -16,19 +14,19 @@ trait ManagementApi
      *
      * @return array
      */
-    public function getAllSubjects(): array
+    public function getAllSubjects()
     {
-        return $this->model->getValuesForFieldInPolicyAllTypes('p', 0);
+        return $this->getAllNamedSubjects('p');
     }
 
     /**
      * gets the list of subjects that show up in the current named policy.
      *
-     * @param string $ptype
+     * @param $ptype
      *
      * @return array
      */
-    public function getAllNamedSubjects(string $ptype): array
+    public function getAllNamedSubjects($ptype)
     {
         return $this->model->getValuesForFieldInPolicy('p', $ptype, 0);
     }
@@ -38,19 +36,19 @@ trait ManagementApi
      *
      * @return array
      */
-    public function getAllObjects(): array
+    public function getAllObjects()
     {
-        return $this->model->getValuesForFieldInPolicyAllTypes('p', 1);
+        return $this->getAllNamedObjects('p');
     }
 
     /**
      * gets the list of objects that show up in the current named policy.
      *
-     * @param string $ptype
+     * @param $ptype
      *
      * @return array
      */
-    public function getAllNamedObjects(string $ptype): array
+    public function getAllNamedObjects($ptype)
     {
         return $this->model->getValuesForFieldInPolicy('p', $ptype, 1);
     }
@@ -60,19 +58,19 @@ trait ManagementApi
      *
      * @return array
      */
-    public function getAllActions(): array
+    public function getAllActions()
     {
-        return $this->model->getValuesForFieldInPolicyAllTypes('p', 2);
+        return $this->getAllNamedActions('p');
     }
 
     /**
      * gets the list of actions that show up in the current named policy.
      *
-     * @param string $ptype
+     * @param $ptype
      *
      * @return array
      */
-    public function getAllNamedActions(string $ptype): array
+    public function getAllNamedActions($ptype)
     {
         return $this->model->getValuesForFieldInPolicy('p', $ptype, 2);
     }
@@ -82,19 +80,19 @@ trait ManagementApi
      *
      * @return array
      */
-    public function getAllRoles(): array
+    public function getAllRoles()
     {
-        return $this->model->getValuesForFieldInPolicyAllTypes('g', 1);
+        return $this->getAllNamedRoles('g');
     }
 
     /**
      * gets the list of roles that show up in the current named policy.
      *
-     * @param string $ptype
+     * @param $ptype
      *
      * @return array
      */
-    public function getAllNamedRoles(string $ptype): array
+    public function getAllNamedRoles($ptype)
     {
         return $this->model->getValuesForFieldInPolicy('g', $ptype, 1);
     }
@@ -102,9 +100,9 @@ trait ManagementApi
     /**
      * gets all the authorization rules in the policy.
      *
-     * @return array
+     * @return mixed
      */
-    public function getPolicy(): array
+    public function getPolicy()
     {
         return $this->getNamedPolicy('p');
     }
@@ -112,12 +110,12 @@ trait ManagementApi
     /**
      * gets all the authorization rules in the policy, field filters can be specified.
      *
-     * @param int    $fieldIndex
-     * @param string ...$fieldValues
+     * @param int   $fieldIndex
+     * @param mixed ...$fieldValues
      *
      * @return array
      */
-    public function getFilteredPolicy(int $fieldIndex, string ...$fieldValues): array
+    public function getFilteredPolicy($fieldIndex, ...$fieldValues)
     {
         return $this->getFilteredNamedPolicy('p', $fieldIndex, ...$fieldValues);
     }
@@ -125,11 +123,11 @@ trait ManagementApi
     /**
      * gets all the authorization rules in the named policy.
      *
-     * @param string $ptype
+     * @param $ptype
      *
-     * @return array
+     * @return mixed
      */
-    public function getNamedPolicy(string $ptype): array
+    public function getNamedPolicy($ptype)
     {
         return $this->model->getPolicy('p', $ptype);
     }
@@ -137,13 +135,13 @@ trait ManagementApi
     /**
      * gets all the authorization rules in the named policy, field filters can be specified.
      *
-     * @param string $ptype
-     * @param int    $fieldIndex
-     * @param string ...$fieldValues
+     * @param $ptype
+     * @param $fieldIndex
+     * @param mixed ...$fieldValues
      *
      * @return array
      */
-    public function getFilteredNamedPolicy(string $ptype, int $fieldIndex, string ...$fieldValues): array
+    public function getFilteredNamedPolicy($ptype, $fieldIndex, ...$fieldValues)
     {
         return $this->model->getFilteredPolicy('p', $ptype, $fieldIndex, ...$fieldValues);
     }
@@ -153,7 +151,7 @@ trait ManagementApi
      *
      * @return array
      */
-    public function getGroupingPolicy(): array
+    public function getGroupingPolicy()
     {
         return $this->getNamedGroupingPolicy('g');
     }
@@ -161,12 +159,12 @@ trait ManagementApi
     /**
      * gets all the role inheritance rules in the policy, field filters can be specified.
      *
-     * @param int    $fieldIndex
-     * @param string ...$fieldValues
+     * @param $fieldIndex
+     * @param mixed ...$fieldValues
      *
      * @return array
      */
-    public function getFilteredGroupingPolicy(int $fieldIndex, string ...$fieldValues): array
+    public function getFilteredGroupingPolicy($fieldIndex, ...$fieldValues)
     {
         return $this->getFilteredNamedGroupingPolicy('g', $fieldIndex, ...$fieldValues);
     }
@@ -174,11 +172,11 @@ trait ManagementApi
     /**
      * gets all the role inheritance rules in the policy.
      *
-     * @param string $ptype
+     * @param $ptype
      *
      * @return array
      */
-    public function getNamedGroupingPolicy(string $ptype): array
+    public function getNamedGroupingPolicy($ptype)
     {
         return $this->model->getPolicy('g', $ptype);
     }
@@ -186,13 +184,13 @@ trait ManagementApi
     /**
      * gets all the role inheritance rules in the policy, field filters can be specified.
      *
-     * @param string $ptype
-     * @param int    $fieldIndex
-     * @param string ...$fieldValues
+     * @param $ptype
+     * @param $fieldIndex
+     * @param mixed ...$fieldValues
      *
      * @return array
      */
-    public function getFilteredNamedGroupingPolicy(string $ptype, int $fieldIndex, string ...$fieldValues): array
+    public function getFilteredNamedGroupingPolicy($ptype, $fieldIndex, ...$fieldValues)
     {
         return $this->model->getFilteredPolicy('g', $ptype, $fieldIndex, ...$fieldValues);
     }
@@ -204,7 +202,7 @@ trait ManagementApi
      *
      * @return bool
      */
-    public function hasPolicy(...$params): bool
+    public function hasPolicy(...$params)
     {
         return $this->hasNamedPolicy('p', ...$params);
     }
@@ -212,12 +210,12 @@ trait ManagementApi
     /**
      * determines whether a named authorization rule exists.
      *
-     * @param string $ptype
-     * @param mixed  ...$params
+     * @param $ptype
+     * @param mixed ...$params
      *
      * @return bool
      */
-    public function hasNamedPolicy(string $ptype, ...$params): bool
+    public function hasNamedPolicy($ptype, ...$params)
     {
         if (1 == count($params) && is_array($params[0])) {
             $params = $params[0];
@@ -235,7 +233,7 @@ trait ManagementApi
      *
      * @return bool
      */
-    public function addPolicy(...$params): bool
+    public function addPolicy(...$params)
     {
         return $this->addNamedPolicy('p', ...$params);
     }
@@ -245,12 +243,12 @@ trait ManagementApi
      * If the rule already exists, the function returns false and the rule will not be added.
      * Otherwise the function returns true by adding the new rule.
      *
-     * @param string $ptype
-     * @param mixed  ...$params
+     * @param $ptype
+     * @param mixed ...$params
      *
      * @return bool
      */
-    public function addNamedPolicy(string $ptype, ...$params): bool
+    public function addNamedPolicy($ptype, ...$params)
     {
         if (1 == count($params) && is_array($params[0])) {
             $params = $params[0];
@@ -266,7 +264,7 @@ trait ManagementApi
      *
      * @return bool
      */
-    public function removePolicy(...$params): bool
+    public function removePolicy(...$params)
     {
         return $this->removeNamedPolicy('p', ...$params);
     }
@@ -274,12 +272,12 @@ trait ManagementApi
     /**
      * removes an authorization rule from the current policy, field filters can be specified.
      *
-     * @param int    $fieldIndex
-     * @param string ...$fieldValues
+     * @param $fieldIndex
+     * @param mixed ...$fieldValues
      *
      * @return bool
      */
-    public function removeFilteredPolicy(int $fieldIndex, string ...$fieldValues): bool
+    public function removeFilteredPolicy($fieldIndex, ...$fieldValues)
     {
         return $this->removeFilteredNamedPolicy('p', $fieldIndex, ...$fieldValues);
     }
@@ -287,12 +285,12 @@ trait ManagementApi
     /**
      * removes an authorization rule from the current named policy.
      *
-     * @param string $ptype
-     * @param mixed  ...$params
+     * @param $ptype
+     * @param mixed ...$params
      *
      * @return bool
      */
-    public function removeNamedPolicy(string $ptype, ...$params): bool
+    public function removeNamedPolicy($ptype, ...$params)
     {
         if (1 == count($params) && is_array($params[0])) {
             $params = $params[0];
@@ -304,13 +302,13 @@ trait ManagementApi
     /**
      * removes an authorization rule from the current named policy, field filters can be specified.
      *
-     * @param string $ptype
-     * @param int    $fieldIndex
-     * @param string ...$fieldValues
+     * @param $ptype
+     * @param $fieldIndex
+     * @param mixed ...$fieldValues
      *
      * @return bool
      */
-    public function removeFilteredNamedPolicy(string $ptype, int $fieldIndex, string ...$fieldValues): bool
+    public function removeFilteredNamedPolicy($ptype, $fieldIndex, ...$fieldValues)
     {
         return $this->removeFilteredPolicyInternal('p', $ptype, $fieldIndex, ...$fieldValues);
     }
@@ -322,7 +320,7 @@ trait ManagementApi
      *
      * @return bool
      */
-    public function hasGroupingPolicy(...$params): bool
+    public function hasGroupingPolicy(...$params)
     {
         return $this->hasNamedGroupingPolicy('g', ...$params);
     }
@@ -330,12 +328,12 @@ trait ManagementApi
     /**
      * determines whether a named role inheritance rule exists.
      *
-     * @param string $ptype
-     * @param mixed  ...$params
+     * @param $ptype
+     * @param mixed ...$params
      *
      * @return bool
      */
-    public function hasNamedGroupingPolicy(string $ptype, ...$params): bool
+    public function hasNamedGroupingPolicy($ptype, ...$params)
     {
         if (1 == count($params) && is_array($params[0])) {
             $params = $params[0];
@@ -353,7 +351,7 @@ trait ManagementApi
      *
      * @return bool
      */
-    public function addGroupingPolicy(...$params): bool
+    public function addGroupingPolicy(...$params)
     {
         return $this->addNamedGroupingPolicy('g', ...$params);
     }
@@ -363,12 +361,12 @@ trait ManagementApi
      * If the rule already exists, the function returns false and the rule will not be added.
      * Otherwise the function returns true by adding the new rule.
      *
-     * @param string $ptype
-     * @param mixed  ...$params
+     * @param $ptype
+     * @param mixed ...$params
      *
      * @return bool
      */
-    public function addNamedGroupingPolicy(string $ptype, ...$params): bool
+    public function addNamedGroupingPolicy($ptype, ...$params)
     {
         if (1 == count($params) && is_array($params[0])) {
             $params = $params[0];
@@ -390,7 +388,7 @@ trait ManagementApi
      *
      * @return bool
      */
-    public function removeGroupingPolicy(...$params): bool
+    public function removeGroupingPolicy(...$params)
     {
         return $this->removeNamedGroupingPolicy('g', ...$params);
     }
@@ -398,12 +396,12 @@ trait ManagementApi
     /**
      * removes a role inheritance rule from the current policy, field filters can be specified.
      *
-     * @param int    $fieldIndex
-     * @param string ...$fieldValues
+     * @param $fieldIndex
+     * @param mixed ...$fieldValues
      *
      * @return bool
      */
-    public function removeFilteredGroupingPolicy(int $fieldIndex, string ...$fieldValues): bool
+    public function removeFilteredGroupingPolicy($fieldIndex, ...$fieldValues)
     {
         return $this->removeFilteredNamedGroupingPolicy('g', $fieldIndex, ...$fieldValues);
     }
@@ -411,12 +409,12 @@ trait ManagementApi
     /**
      * removes a role inheritance rule from the current named policy.
      *
-     * @param string $ptype
-     * @param mixed  ...$params
+     * @param $ptype
+     * @param mixed ...$params
      *
      * @return bool
      */
-    public function removeNamedGroupingPolicy(string $ptype, ...$params): bool
+    public function removeNamedGroupingPolicy($ptype, ...$params)
     {
         if (1 == count($params) && is_array($params[0])) {
             $params = $params[0];
@@ -436,11 +434,11 @@ trait ManagementApi
      *
      * @param string $ptype
      * @param int    $fieldIndex
-     * @param string ...$fieldValues
+     * @param mixed  ...$fieldValues
      *
      * @return bool
      */
-    public function removeFilteredNamedGroupingPolicy(string $ptype, int $fieldIndex, string ...$fieldValues): bool
+    public function removeFilteredNamedGroupingPolicy($ptype, $fieldIndex, ...$fieldValues)
     {
         $ruleRemoved = $this->removeFilteredPolicyInternal('g', $ptype, $fieldIndex, ...$fieldValues);
 
@@ -454,10 +452,10 @@ trait ManagementApi
     /**
      * adds a customized function.
      *
-     * @param string   $name
+     * @param $name
      * @param \Closure $func
      */
-    public function addFunction(string $name, \Closure $func): void
+    public function addFunction($name, \Closure $func)
     {
         $this->fm->addFunction($name, $func);
     }

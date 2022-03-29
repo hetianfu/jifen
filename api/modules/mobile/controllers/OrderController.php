@@ -72,7 +72,11 @@ class OrderController extends BaseController
         $userId=parent::getUserId();
         $orderInfo=$this->service->getLastOneByUserId($userId);
 
-        return is_null($orderInfo['connect_snap'])?$this::resultEmpty:json_decode($orderInfo['connect_snap']);
+        if(isset($orderInfo['connect_snap'])){
+           return json_decode($orderInfo['connect_snap']);
+        }
+        return '';
+
     }
     /**
      * 获取用户最后一个快递订单的收货地址

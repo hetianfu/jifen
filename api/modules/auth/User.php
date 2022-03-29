@@ -4,6 +4,8 @@ namespace api\modules\auth;
 
 
 use common\utils\FuncHelper;
+use fanyou\enums\HttpErrorEnum;
+use fanyou\error\FanYouHttpException;
 use Yii;
 
 class User
@@ -32,6 +34,9 @@ class User
                 }
              }
             $clientIp = FuncHelper::getClientIp();
+
+
+
             //  if($clientIp == $userInfo['clientIp'] && ( time() - $userInfo['timestamp'] ) < 2600 ){
             if(($userInfo['timestamp'] - time() ) > 36000 ){
                 $this->identity =$userInfo;
@@ -44,7 +49,7 @@ class User
                 return true;
             }
         }
-        return null;
+      throw new FanYouHttpException(HttpErrorEnum::UNAUTHORIZED,'请先登录');
     }
 
     public function getIdentity()

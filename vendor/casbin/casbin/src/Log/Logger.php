@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Log;
 
 /**
@@ -16,27 +14,31 @@ interface Logger
      *
      * @param bool $enable
      */
-    public function enableLog(bool $enable): void;
+    public function enableLog($enable);
 
     /**
      * returns if logger is enabled.
      *
      * @return bool
      */
-    public function isEnabled(): bool;
+    public function isEnabled();
 
     /**
      * formats using the default formats for its operands and logs the message.
      *
      * @param mixed ...$v
+     *
+     * @return mixed
      */
-    public function write(...$v): void;
+    public function write(...$v);
 
     /**
      * formats according to a format specifier and logs the message.
      *
-     * @param string $format
-     * @param mixed  ...$v
+     * @param $format
+     * @param mixed ...$v
+     *
+     * @return mixed
      */
-    public function writef(string $format, ...$v): void;
+    public function writef($format, ...$v);
 }

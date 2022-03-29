@@ -120,7 +120,6 @@ class OrderPayService extends BasicService
             }else{
                 $currencyPrice = $isVip ? $entity->member_price : $entity->sale_price;
             }
-            //TODO 需不需要？
             //积分商城不应该加快递费
             if ($productInfo->is_freight) {
                 $productFreight +=

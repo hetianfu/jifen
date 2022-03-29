@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Log;
 
 use Casbin\Log\Logger\DefaultLogger;
@@ -25,7 +23,7 @@ class Log
      *
      * @param Logger $l
      */
-    public static function setLogger(Logger $l): void
+    public static function setLogger(Logger $l)
     {
         self::$logger = $l;
     }
@@ -35,7 +33,7 @@ class Log
      *
      * @return Logger
      */
-    public static function getLogger(): Logger
+    public static function getLogger()
     {
         return self::$logger;
     }
@@ -43,9 +41,9 @@ class Log
     /**
      * prints the log.
      *
-     * @param mixed ...$v
+     * @param mix ...$v
      */
-    public static function logPrint(...$v): void
+    public static function logPrint(...$v)
     {
         self::$logger->write(...$v);
     }
@@ -53,10 +51,10 @@ class Log
     /**
      * prints the log with the format.
      *
-     * @param string $format
-     * @param mixed  ...$v
+     * @param $format
+     * @param mixed ...$v
      */
-    public static function logPrintf(string $format, ...$v): void
+    public static function logPrintf($format, ...$v)
     {
         self::$logger->writef($format, ...$v);
     }

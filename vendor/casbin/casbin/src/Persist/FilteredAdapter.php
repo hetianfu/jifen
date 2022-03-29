@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Persist;
 
 use Casbin\Model\Model;
@@ -18,14 +16,16 @@ interface FilteredAdapter extends Adapter
      * loads only policy rules that match the filter.
      *
      * @param Model $model
-     * @param mixed $filter
+     * @param $filter
+     *
+     * @return mixed
      */
-    public function loadFilteredPolicy(Model $model, $filter): void;
+    public function loadFilteredPolicy(Model $model, $filter);
 
     /**
      * returns true if the loaded policy has been filtered.
      *
      * @return bool
      */
-    public function isFiltered(): bool;
+    public function isFiltered();
 }

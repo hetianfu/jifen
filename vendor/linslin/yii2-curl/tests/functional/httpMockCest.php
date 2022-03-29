@@ -664,12 +664,11 @@ class httpMockCest
                 A::getRequest()->andUrl(Is::equalTo('/test/httpStatus/header'))
             )->then(
                 Respond::withStatusCode(200)
-                    ->andHeader('Content-Type', Is::equalTo('application/x-javascript;charset=UTF-8'))
+                    ->andHeader('Content-Type', 'application/x-javascript;charset=UTF-8')
             )
         );
 
-        $this->_curl
-            ->get($this->_endPoint . '/test/httpStatus/header');
+        $this->_curl->get($this->_endPoint . '/test/httpStatus/header');
 
         $I->assertEquals($this->_curl->responseCharset, 'utf-8');
     }
@@ -928,5 +927,24 @@ class httpMockCest
 
         //check for value
         $I->assertEquals($this->_curl->getRequestHeader('Content-Type'), 'application/json');
+    }
+
+    /**
+     * Simple HTTP ok
+     * @param FunctionalTester $I
+     * @throws Exception
+     */
+    public function simpleOptionsOkTest(\FunctionalTester $I)
+    {
+        $I->expectARequestToRemoteServiceWithAResponse(
+            Phiremock::on(
+                A::optionsRequest()->andUrl(Is::equalTo('/test/httpStatus/204'))
+            )->then(
+                Respond::withStatusCode(204)
+            )
+        );
+
+        $this->_curl->options($this->_endPoint . '/test/httpStatus/204');
+        $I->assertEquals($this->_curl->responseCode, 204);
     }
 }

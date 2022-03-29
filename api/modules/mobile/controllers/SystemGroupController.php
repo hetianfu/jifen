@@ -82,6 +82,7 @@ class SystemGroupController extends BaseController
                 }
             }
         }
+
         return $result;
 
     }
@@ -96,7 +97,7 @@ class SystemGroupController extends BaseController
         $itme = [];
         if (count($array)) {
             foreach ($array as $k => $v) {
-                if ($v['type'] == 'group') {
+                if (isset($v['type'])  && $v['type'] == 'group') {
                     $groupInfo = $this->service->getOneById($v['value']);
                     $gValues = FanYouSystemGroupService::getSystemGroupDate($groupInfo);
                     if (!empty($gValues)) {
@@ -186,15 +187,15 @@ class SystemGroupController extends BaseController
     {
         $tokenId = "html_index_app_config";
         $tokenContent = Yii::$app->cache->get($tokenId);
-//TODO
 //        if (!empty($tokenContent)) {
 //            return json_decode($tokenContent);
 //        }
 
         $result = [];
         $array = $this->configService->findConfigList(SystemConfigEnum::INDEX_APP_CONFIG);
+
         foreach ($array as $k => $v) {
-            if ($v['type'] == 'group') {
+            if ($v['type'] == 'group' && isset($v['value'])) {
                 $groupInfo = $this->service->getOneById($v['value']);
                 $gValues = FanYouSystemGroupService::getSystemGroupDate($groupInfo);
                 if (!empty($gValues)) {

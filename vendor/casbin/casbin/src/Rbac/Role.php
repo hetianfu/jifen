@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Rbac;
 
 /**
@@ -27,7 +25,7 @@ class Role
      *
      * @param string $name
      */
-    public function __construct(string $name)
+    public function __construct($name)
     {
         $this->name = $name;
     }
@@ -35,7 +33,7 @@ class Role
     /**
      * @param self $role
      */
-    public function addRole(self $role): void
+    public function addRole(self $role)
     {
         foreach ($this->roles as $rr) {
             if ($rr->name == $role->name) {
@@ -48,7 +46,7 @@ class Role
     /**
      * @param self $role
      */
-    public function deleteRole(self $role): void
+    public function deleteRole(self $role)
     {
         foreach ($this->roles as $key => $rr) {
             if ($rr->name == $role->name) {
@@ -65,7 +63,7 @@ class Role
      *
      * @return bool
      */
-    public function hasRole(string $name, int $hierarchyLevel): bool
+    public function hasRole($name, $hierarchyLevel)
     {
         if ($name == $this->name) {
             return true;
@@ -88,7 +86,7 @@ class Role
      *
      * @return bool
      */
-    public function hasDirectRole(string $name): bool
+    public function hasDirectRole($name)
     {
         foreach ($this->roles as $role) {
             if ($role->name == $name) {
@@ -102,17 +100,15 @@ class Role
     /**
      * @return string
      */
-    public function toString(): string
+    public function toString()
     {
-        $len = \count($this->roles);
-
-        if (0 == $len) {
+        if (0 == \count($this->roles)) {
             return '';
         }
 
         $names = implode(', ', $this->getRoles());
 
-        if (1 == $len) {
+        if (1 == \count($this->roles)) {
             return $this->name.' < '.$names;
         } else {
             return $this->name.' < ('.$names.')';
@@ -122,7 +118,7 @@ class Role
     /**
      * @return array
      */
-    public function getRoles(): array
+    public function getRoles()
     {
         return array_map(function ($role) {
             return $role->name;

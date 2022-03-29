@@ -12,7 +12,7 @@ use Casbin\Enforcer;
  */
 class RbacApiWithDomainsTest extends TestCase
 {
-    private $modelAndPolicyPath = __DIR__ . '/../../examples';
+    private $modelAndPolicyPath = __DIR__.'/../../examples';
 
     public function testGetUsersForRoleInDomain()
     {

@@ -153,7 +153,6 @@ class Local extends AbstractAdapter
     public function writeStream($path, $resource, Config $config)
     {
         $location = $this->applyPathPrefix($path);
-        
         $this->ensureDirectory(dirname($location));
         $stream = fopen($location, 'w+b');
 
@@ -207,8 +206,9 @@ class Local extends AbstractAdapter
 
         $result = compact('type', 'path', 'size', 'contents');
 
-        if ($mimetype = $config->get('mimetype') ?: Util::guessMimeType($path, $contents)) {
-            $result['mimetype'] = $mimetype;
+        if ($visibility = $config->get('visibility')) {
+            $this->setVisibility($path, $visibility);
+            $result['visibility'] = $visibility;
         }
 
         return $result;

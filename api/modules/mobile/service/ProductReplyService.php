@@ -42,16 +42,18 @@ class ProductReplyService
 			'partialMatchAttributes' => ['name'], // 模糊查询
 			'defaultOrder' =>$query->getOrdersArray('updated_at',SORT_DESC),
 			'pageSize' => $query->limit,
-            'relations'=>['userInfo']
+       'relations'=>['userInfo']
 		]);
+
+
 		$searchWord = $searchModel->search( $query->toArray([],[QueryEnum::LIMIT]) );
 		$list = ArrayHelper::toArray($searchWord->getModels());
 
-		foreach ($list as &$row){
-      if(!isset($row['userInfo'])){
-        $row['userInfo']['nickName'] = $row['user_name'];
-      }
-    }
+//		foreach ($list as &$row){
+//      if(!isset($row['userInfo'])){
+//        $row['userInfo']['nickName'] = $row['user_name'];
+//      }
+//    }
     $result['list'] = $list;
 		$result['totalCount'] = $searchWord->pagination->totalCount;
 

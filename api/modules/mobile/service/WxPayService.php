@@ -107,7 +107,6 @@ class WxPayService extends BasicService
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public  function  unifyPayOrder( $array){
-
          return  Yii::$app->wechat->payment->order->unify($array);
     }
 

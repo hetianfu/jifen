@@ -6,12 +6,12 @@ use Omnipay\Alipay\AopF2FGateway;
 use Omnipay\Alipay\Common\Signer;
 use Omnipay\Alipay\Responses\AopCompletePurchaseResponse;
 use Omnipay\Alipay\Responses\AopCompleteRefundResponse;
-use Omnipay\Alipay\Responses\DataServiceBillDownloadUrlQueryResponse;
 use Omnipay\Alipay\Responses\AopTradePayResponse;
 use Omnipay\Alipay\Responses\AopTradePreCreateResponse;
 use Omnipay\Alipay\Responses\AopTradeQueryResponse;
 use Omnipay\Alipay\Responses\AopTradeRefundQueryResponse;
 use Omnipay\Alipay\Responses\AopTradeRefundResponse;
+use Omnipay\Alipay\Responses\DataServiceBillDownloadUrlQueryResponse;
 
 class AopF2FGatewayTest extends AbstractGatewayTestCase
 {
@@ -47,9 +47,9 @@ class AopF2FGatewayTest extends AbstractGatewayTestCase
             [
                 'biz_content' => [
                     'out_trade_no' => date('YmdHis') . mt_rand(1000, 9999),
-                    'scene'        => 'bar_code',
-                    'auth_code'    => '288412621343841260',
-                    'subject'      => 'test',
+                    'scene' => 'bar_code',
+                    'auth_code' => '288412621343841260',
+                    'subject' => 'test',
                     'total_amount' => '0.01',
                 ]
             ]
@@ -71,7 +71,7 @@ class AopF2FGatewayTest extends AbstractGatewayTestCase
             [
                 'biz_content' => [
                     'out_trade_no' => date('YmdHis') . mt_rand(1000, 9999),
-                    'subject'      => 'test',
+                    'subject' => 'test',
                     'total_amount' => '0.01',
                 ]
             ]
@@ -114,7 +114,7 @@ class AopF2FGatewayTest extends AbstractGatewayTestCase
             [
                 'biz_content' => [
                     'refund_amount' => '10.01',
-                    'out_trade_no'  => '201609220542532413'
+                    'out_trade_no' => '201609220542532413'
                 ]
             ]
         )->send();
@@ -134,8 +134,8 @@ class AopF2FGatewayTest extends AbstractGatewayTestCase
         $response = $this->gateway->refundQuery(
             [
                 'biz_content' => [
-                    'refund_amount'  => '10.01',
-                    'out_trade_no'   => '201609220542532412',
+                    'refund_amount' => '10.01',
+                    'out_trade_no' => '201609220542532412',
                     'out_request_no' => '201609220542532412'
                 ]
             ]
@@ -156,18 +156,18 @@ class AopF2FGatewayTest extends AbstractGatewayTestCase
         $response = $this->gateway->settle(
             [
                 'biz_content' => [
-                    'out_request_no'     => '201609220542532412',
-                    'trade_no'           => '2014030411001007850000672009',
+                    'out_request_no' => '201609220542532412',
+                    'trade_no' => '2014030411001007850000672009',
                     'royalty_parameters' => [
                         [
                             'trans_out' => '111111',
-                            'trans_in'  => '222222',
-                            'amount'    => '0.01',
+                            'trans_in' => '222222',
+                            'amount' => '0.01',
                         ],
                         [
                             'trans_out' => '111111',
-                            'trans_in'  => '333333',
-                            'amount'    => '0.02',
+                            'trans_in' => '333333',
+                            'amount' => '0.02',
                         ]
                     ]
                 ]
@@ -202,7 +202,7 @@ class AopF2FGatewayTest extends AbstractGatewayTestCase
     public function testCompletePurchase()
     {
         $testPrivateKey = ALIPAY_ASSET_DIR . '/dist/common/rsa_private_key.pem';
-        $testPublicKey  = ALIPAY_ASSET_DIR . '/dist/common/rsa_public_key.pem';
+        $testPublicKey = ALIPAY_ASSET_DIR . '/dist/common/rsa_public_key.pem';
 
         $this->gateway = new AopF2FGateway($this->getHttpClient(), $this->getHttpRequest());
         $this->gateway->setAppId($this->appId);
@@ -216,7 +216,7 @@ class AopF2FGatewayTest extends AbstractGatewayTestCase
         $signer = new Signer($data);
         $signer->setSort(true);
         $signer->setEncodePolicy(Signer::ENCODE_POLICY_QUERY);
-        $data['sign']      = $signer->signWithRSA($testPrivateKey);
+        $data['sign'] = $signer->signWithRSA($testPrivateKey);
         $data['sign_type'] = 'RSA';
 
         $this->gateway->setAlipayPublicKey($testPublicKey);
@@ -240,7 +240,7 @@ class AopF2FGatewayTest extends AbstractGatewayTestCase
     public function testCompleteRefund()
     {
         $testPrivateKey = ALIPAY_ASSET_DIR . '/dist/common/rsa_private_key.pem';
-        $testPublicKey  = ALIPAY_ASSET_DIR . '/dist/common/rsa_public_key.pem';
+        $testPublicKey = ALIPAY_ASSET_DIR . '/dist/common/rsa_public_key.pem';
 
         $this->gateway = new AopF2FGateway($this->getHttpClient(), $this->getHttpRequest());
         $this->gateway->setAppId($this->appId);
@@ -254,7 +254,7 @@ class AopF2FGatewayTest extends AbstractGatewayTestCase
         $signer = new Signer($data);
         $signer->setSort(true);
         $signer->setEncodePolicy(Signer::ENCODE_POLICY_QUERY);
-        $data['sign']      = $signer->signWithRSA($testPrivateKey);
+        $data['sign'] = $signer->signWithRSA($testPrivateKey);
         $data['sign_type'] = 'RSA';
 
         $this->gateway->setAlipayPublicKey($testPublicKey);

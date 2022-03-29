@@ -3,12 +3,8 @@
 namespace Casbin\Tests\Unit;
 
 use Casbin\Enforcer;
-use Casbin\Exceptions\CasbinException;
 use Casbin\Model\Model;
 use Casbin\Persist\Adapters\FileAdapter;
-use Casbin\Persist\Adapters\FileFilteredAdapter;
-use Casbin\Persist\Adapters\Filter;
-use Casbin\Rbac\RoleManager;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  */
 class EnforcerTest extends TestCase
 {
-    private $modelAndPolicyPath = __DIR__ . '/../../examples';
+    private $modelAndPolicyPath = __DIR__.'/../../examples';
 
     public function testInitWihtEnableLog()
     {
@@ -118,12 +114,6 @@ EOT
         $this->assertTrue($e->enforce('alice', 'data1', 'write'));
     }
 
-    public function testGetRoleManager(){
-        $e = new Enforcer($this->modelAndPolicyPath.'/basic_model.conf');
-        $rm = $e->getRoleManager();
-        $this->assertTrue($rm instanceof RoleManager);
-    }
-
     public function testSetAdapterFromFile()
     {
         $e = new Enforcer($this->modelAndPolicyPath.'/basic_model.conf');
@@ -146,7 +136,7 @@ EOT
 
     public function testSavePolicy()
     {
-        $policyFile = __DIR__ . '/Persist/Adapters/rbac_policy_test.csv';
+        $policyFile = __DIR__.'/Persist/Adapters/rbac_policy_test.csv';
         file_put_contents($policyFile, '', LOCK_EX);
 
         $e = new Enforcer($this->modelAndPolicyPath.'/rbac_model.conf', $policyFile);
@@ -169,44 +159,6 @@ EOT
         $this->assertEquals($e2->enforce('alice', 'data2', 'read'), true);
         $this->assertEquals($e2->enforce('alice', 'data2', 'write'), true);
         file_put_contents($policyFile, '', LOCK_EX);
-    }
-
-    public function testFilteredPolicy()
-    {
-        $adapter = new FileFilteredAdapter($this->modelAndPolicyPath.'/rbac_with_domains_policy.csv');
-        $e = new Enforcer($this->modelAndPolicyPath.'/rbac_with_domains_model.conf', $adapter);
-        $this->assertTrue($e->isFiltered());
-
-        $e->loadPolicy();
-
-        $this->assertTrue($e->hasPolicy('admin', 'domain1', 'data1', 'read'));
-        $this->assertTrue($e->hasPolicy('admin', 'domain2', 'data2', 'read'));
-
-        $e->loadFilteredPolicy(new Filter(
-            ['', 'domain1'],
-            ['', '', 'domain1']
-        ));
-
-        $this->assertTrue($e->hasPolicy('admin', 'domain1', 'data1', 'read'));
-        $this->assertFalse($e->hasPolicy('admin', 'domain2', 'data2', 'read'));
-
-        $th = null;
-
-        try {
-            $e->savePolicy();
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
-        $this->assertInstanceOf(CasbinException::class, $th);
-
-        $th = null;
-
-        try {
-            $e->getAdapter()->savePolicy($e->getModel());
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
-        $this->assertInstanceOf(CasbinException::class, $th);
     }
 
     public function testEnableEnforce()

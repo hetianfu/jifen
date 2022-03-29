@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Effect;
 
 use Casbin\Exceptions\CasbinException;
@@ -16,15 +14,15 @@ class DefaultEffector extends Effector
     /**
      * merges all matching results collected by the enforcer into a single decision.
      *
-     * @param string $expr
-     * @param array  $effects
-     * @param array  $results
+     * @param $expr
+     * @param array $effects
+     * @param array $results
      *
      * @return bool
      *
      * @throws CasbinException
      */
-    public function mergeEffects(string $expr, array $effects, array $results): bool
+    public function mergeEffects($expr, array $effects, array $results)
     {
         $result = false;
         if ('some(where (p_eft == allow))' == $expr) {

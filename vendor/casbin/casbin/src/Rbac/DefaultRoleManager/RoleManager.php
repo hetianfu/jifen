@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Rbac\DefaultRoleManager;
 
 use Casbin\Exceptions\CasbinException;
@@ -30,9 +28,9 @@ class RoleManager implements RoleManagerContract
     /**
      * RoleManager constructor.
      *
-     * @param int $maxHierarchyLevel
+     * @param $maxHierarchyLevel
      */
-    public function __construct(int $maxHierarchyLevel)
+    public function __construct($maxHierarchyLevel)
     {
         $this->allRoles = [];
         $this->maxHierarchyLevel = $maxHierarchyLevel;
@@ -43,7 +41,7 @@ class RoleManager implements RoleManagerContract
      *
      * @return bool
      */
-    protected function hasRole(string $name): bool
+    protected function hasRole($name)
     {
         return isset($this->allRoles[$name]);
     }
@@ -51,9 +49,9 @@ class RoleManager implements RoleManagerContract
     /**
      * @param string $name
      *
-     * @return Role
+     * @return mixed
      */
-    protected function createRole(string $name): Role
+    protected function createRole($name)
     {
         if (!isset($this->allRoles[$name])) {
             $this->allRoles[$name] = new Role($name);
@@ -65,7 +63,7 @@ class RoleManager implements RoleManagerContract
     /**
      * clears all stored data and resets the role manager to the initial state.
      */
-    public function clear(): void
+    public function clear()
     {
         $this->allRoles = [];
     }
@@ -77,15 +75,18 @@ class RoleManager implements RoleManagerContract
      *
      * @param string $name1
      * @param string $name2
-     * @param string ...$domain
+     * @param string $domain
      */
-    public function addLink(string $name1, string $name2, string ...$domain): void
+    public function addLink($name1, $name2, $domain = '')
     {
-        $prefix = self::getPrefix(...$domain);
+        if ('' != $domain) {
+            $name1 = $domain.'::'.$name1;
+            $name2 = $domain.'::'.$name2;
+        }
 
-        $this->createRole($prefix.$name1)->addRole(
-            $this->createRole($prefix.$name2)
-        );
+        $role1 = $this->createRole($name1);
+        $role2 = $this->createRole($name2);
+        $role1->addRole($role2);
     }
 
     /**
@@ -95,24 +96,22 @@ class RoleManager implements RoleManagerContract
      *
      * @param string $name1
      * @param string $name2
-     * @param string ...$domain
+     * @param string $domain
      */
-    public function deleteLink(string $name1, string $name2, string ...$domain): void
+    public function deleteLink($name1, $name2, $domain = '')
     {
-        $prefix = self::getPrefix(...$domain);
+        if ('' != $domain) {
+            $name1 = $domain.'::'.$name1;
+            $name2 = $domain.'::'.$name2;
+        }
 
-        list($name1, $name2) = array_map(function ($name) use ($prefix) {
-            $name = $prefix.$name;
-            if (!$this->hasRole($name)) {
-                throw new CasbinException('error: name1 or name2 does not exist');
-            }
+        if (!$this->hasRole($name1) || !$this->hasRole($name2)) {
+            throw new CasbinException('error: name1 or name2 does not exist');
+        }
 
-            return $name;
-        }, [$name1, $name2]);
-
-        $this->createRole($name1)->deleteRole(
-            $this->createRole($name2)
-        );
+        $role1 = $this->createRole($name1);
+        $role2 = $this->createRole($name2);
+        $role1->deleteRole($role2);
     }
 
     /**
@@ -121,27 +120,28 @@ class RoleManager implements RoleManagerContract
      *
      * @param string $name1
      * @param string $name2
-     * @param string ...$domain
+     * @param string $domain
      *
      * @return bool
      */
-    public function hasLink(string $name1, string $name2, string ...$domain): bool
+    public function hasLink($name1, $name2, $domain = '')
     {
-        $prefix = self::getPrefix(...$domain);
+        if ('' != $domain) {
+            $name1 = $domain.'::'.$name1;
+            $name2 = $domain.'::'.$name2;
+        }
 
         if ($name1 == $name2) {
             return true;
         }
 
-        list($name1, $name2) = array_map(function ($name) use ($prefix) {
-            return $prefix.$name;
-        }, [$name1, $name2]);
-
         if (!$this->hasRole($name1) || !$this->hasRole($name2)) {
             return false;
         }
 
-        return $this->createRole($name1)->hasRole($name2, $this->maxHierarchyLevel);
+        $role1 = $this->createRole($name1);
+
+        return $role1->hasRole($name2, $this->maxHierarchyLevel);
     }
 
     /**
@@ -149,26 +149,25 @@ class RoleManager implements RoleManagerContract
      * domain is a prefix to the roles.
      *
      * @param string $name
-     * @param string ...$domain
+     * @param string $domain
      *
      * @return array
      */
-    public function getRoles(string $name, string ...$domain): array
+    public function getRoles($name, $domain = '')
     {
-        $prefix = self::getPrefix(...$domain);
-
-        $name = $prefix.$name;
+        if ('' != $domain) {
+            $name = $domain.'::'.$name;
+        }
 
         if (!$this->hasRole($name)) {
             return [];
         }
 
         $roles = $this->createRole($name)->getRoles();
-
-        if ('' != $prefix) {
-            array_walk($roles, function (&$role, $key, $len) {
-                $role = \substr($role, $len);
-            }, \strlen($prefix));
+        if ('' != $domain) {
+            foreach ($roles as $key => $value) {
+                $roles[$key] = \substr($roles[$key], \strlen($domain) + 2);
+            }
         }
 
         return $roles;
@@ -179,15 +178,15 @@ class RoleManager implements RoleManagerContract
      * domain is an unreferenced parameter here, may be used in other implementations.
      *
      * @param string $name
-     * @param string ...$domain
+     * @param string $domain
      *
      * @return array
      */
-    public function getUsers(string $name, string ...$domain): array
+    public function getUsers($name, $domain = '')
     {
-        $prefix = self::getPrefix(...$domain);
-
-        $name = $prefix.$name;
+        if ('' != $domain) {
+            $name = $domain.'::'.$name;
+        }
 
         if (!$this->hasRole($name)) {
             // throw new CasbinException('error: name does not exist');
@@ -195,11 +194,9 @@ class RoleManager implements RoleManagerContract
         }
 
         $names = [];
-
-        $len = \strlen($prefix);
-        array_map(function ($role) use (&$names, $name, $len) {
+        array_map(function ($role) use (&$names, $name, $domain) {
             if ($role->hasDirectRole($name)) {
-                $names[] = $len > 0 ? \substr($role->name, $len) : $role->name;
+                $names[] = '' != $domain ? \substr($role->name, \strlen($domain) + 2) : $role->name;
             }
         }, $this->allRoles);
 
@@ -209,34 +206,14 @@ class RoleManager implements RoleManagerContract
     /**
      * prints all the roles to log.
      */
-    public function printRoles(): void
+    public function printRoles()
     {
         $line = [];
-
         array_map(function ($role) use (&$line) {
             if ($text = $role->toString()) {
                 $line[] = $text;
             }
         }, $this->allRoles);
-
         Log::logPrint(implode(', ', $line));
-    }
-
-    /**
-     * Get the prefix of the roles from domain.
-     *
-     * @param string ...$domain
-     *
-     * @return string
-     */
-    private static function getPrefix(string ...$domain): string
-    {
-        $size = \count($domain);
-
-        if ($size > 1) {
-            throw new CasbinException('error: domain should be 1 parameter');
-        }
-
-        return 1 == $size ? $domain[0].'::' : '';
     }
 }

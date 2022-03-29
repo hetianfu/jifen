@@ -12,16 +12,19 @@ use yii\db\Exception;
 use yii\di\Instance;
 
 /**
- * Redis Cache implements a cache application component based on [redis](http://redis.io/) key-value store.
+ * Redis Cache implements a cache application component based on [redis](https://redis.io/) key-value store.
  *
  * Redis Cache requires redis version 2.6.12 or higher to work properly.
  *
- * It needs to be configured with a redis [[Connection]] that is also configured as an application component.
- * By default it will use the `redis` application component.
+ * It needs to be configured with a redis [[Connection]]. By default it will use the `redis` application component.
  *
- * See [[Cache]] manual for common cache operations that redis Cache supports.
+ * > Note: It is recommended to use separate [[Connection::$database|database]] for cache and do not share it with
+ * > other components. If you need to share database, you should set [[$shareDatabase]] to `true` and make sure that
+ * > [[$keyPrefix]] has unique value which will allow to distinguish between cache keys and other data in database.
  *
- * Unlike the [[Cache]], redis Cache allows the expire parameter of [[set]], [[add]], [[mset]] and [[madd]] to
+ * See [[yii\caching\Cache]] manual for common cache operations that redis Cache supports.
+ *
+ * Unlike the [[yii\caching\Cache]], redis Cache allows the expire parameter of [[set]], [[add]], [[mset]] and [[madd]] to
  * be a floating point number, so you may specify the time in milliseconds (e.g. 0.1 will be 100 milliseconds).
  *
  * To use redis Cache as the cache application component, configure the application as follows,
@@ -90,7 +93,7 @@ use yii\di\Instance;
  * ]);
  * ~~~
  *
- * @property bool $isCluster
+ * @property-read bool $isCluster Whether redis is running in cluster mode or not.
  *
  * @author Carsten Brandt <mail@cebe.cc>
  * @since 2.0
@@ -137,6 +140,15 @@ class Cache extends \yii\caching\Cache
      * @since 2.0.11
      */
     public $forceClusterMode;
+    /**
+     * @var bool whether redis [[Connection::$database|database]] is shared and can contain other data than cache.
+     * Setting this to `true` will change [[flush()]] behavior - instead of using [`FLUSHDB`](https://redis.io/commands/flushdb)
+     * command, component will iterate through all keys in database and remove only these with matching [[$keyPrefix]].
+     * Note that this will no longer be an atomic operation and it is much less efficient than `FLUSHDB` command. It is
+     * recommended to use separate database for cache and leave this value as `false`.
+     * @since 2.0.12
+     */
+    public $shareDatabase = false;
 
     /**
      * @var Connection currently active connection.
@@ -229,11 +241,11 @@ class Cache extends \yii\caching\Cache
     {
         if ($expire == 0) {
             return (bool) $this->redis->executeCommand('SET', [$key, $value]);
-        } else {
-            $expire = (int) ($expire * 1000);
-
-            return (bool) $this->redis->executeCommand('SET', [$key, $value, 'PX', $expire]);
         }
+
+        $expire = (int) ($expire * 1000);
+
+        return (bool) $this->redis->executeCommand('SET', [$key, $value, 'PX', $expire]);
     }
 
     /**
@@ -314,11 +326,11 @@ class Cache extends \yii\caching\Cache
     {
         if ($expire == 0) {
             return (bool) $this->redis->executeCommand('SET', [$key, $value, 'NX']);
-        } else {
-            $expire = (int) ($expire * 1000);
-
-            return (bool) $this->redis->executeCommand('SET', [$key, $value, 'PX', $expire, 'NX']);
         }
+
+        $expire = (int) ($expire * 1000);
+
+        return (bool) $this->redis->executeCommand('SET', [$key, $value, 'PX', $expire, 'NX']);
     }
 
     /**
@@ -334,6 +346,19 @@ class Cache extends \yii\caching\Cache
      */
     protected function flushValues()
     {
+        if ($this->shareDatabase) {
+            $cursor = 0;
+            do {
+                list($cursor, $keys) = $this->redis->scan($cursor, 'MATCH', $this->keyPrefix . '*');
+                $cursor = (int) $cursor;
+                if (!empty($keys)) {
+                    $this->redis->executeCommand('DEL', $keys);
+                }
+            } while ($cursor !== 0);
+
+            return true;
+        }
+
         return $this->redis->executeCommand('FLUSHDB');
     }
 

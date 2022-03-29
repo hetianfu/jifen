@@ -76,6 +76,7 @@ class SmsController extends BaseController
 
        // SmsService::sendSms($telephone, SmsEnum::REG, $templateCode);
 
+
         if (!empty($content)) {
             $array = ArrayHelper::toArray($content);
             if ($array['Message'] != 'OK') {

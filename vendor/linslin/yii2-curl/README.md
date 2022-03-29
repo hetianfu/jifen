@@ -14,11 +14,12 @@ Easy working cURL extension for Yii2, including RESTful support:
  - PUT
  - PATCH
  - DELETE
+ - OPTIONS
 
 Requirements
 ------------
 - Yii2
-- PHP >=7.1.3
+- PHP >=7.2.0 || 8.0.1
 - ext-curl, ext-json, and php-curl installed
 
 
@@ -28,7 +29,7 @@ Installation
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
 
 ```bash
-php composer.phar require --prefer-dist linslin/yii2-curl "*"
+composer require --prefer-dist linslin/yii2-curl "*"
 ```
 
 
@@ -181,11 +182,27 @@ Testing
 ------------
 
 - Run codeception tests with `vendor/bin/codecept run` in repository root dir. 
+  Run codeception with clover report `XDEBUG_MODE=coverage vendor/bin/codecept run --coverage-xml ./../../build/logs/clover.xml`. 
   On windows run `vendor\bin\codecept.bat run`. 
+  On windows with clover report run `vendor\bin\codecept.bat run --coverage-xml ./../../build/logs/clover.xml`. 
 
  
 Changelog
 ------------
+------------
+##### Release 1.5.0 - Changelog
+- Added PHP 8 support.
+- Updated phiremock to v2.
+- Removed not needed dependencies from the composer package file (https://github.com/linslin/Yii2-Curl/issues/88).
+- Fixed CURLFile object serialization for profiling (https://github.com/linslin/Yii2-Curl/issues/87).
+
+
+##### Release 1.4.0 - Changelog
+- Added support for HTTP-Method OPTIONS.
+- Removed deprecated PHP Version support. Minimum PHP Version is now 7.2.0. 
+Please use version "linslin/yii2-curl 1.3.0" - https://github.com/linslin/Yii2-Curl/releases/tag/1.3.0 if you need PHP 7.1.0+ support. 
+
+
 ##### Release 1.3.0 - Changelog
 - Fixed HTTP-Method parsing on PATCH request.
 - Updated DocBlocks + code refactoring.  
@@ -282,3 +299,11 @@ Please use version "linslin/yii2-curl 1.2.1" - https://github.com/linslin/Yii2-C
 
 ##### Release 1.0 - Changelog
 - Official stable release
+
+
+Thanks to
+------------
+------------
+Mariano Custiel ([@mcustiel](https://github.com/mcustiel))
+
+... and all other contributors. 

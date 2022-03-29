@@ -13,21 +13,41 @@ class ComposerAutoloaderInit0c2ece1e11bee92ad2795b7f6d0eafbe
         }
     }
 
+    /**
+     * @return \Composer\Autoload\ClassLoader
+     */
     public static function getLoader()
     {
         if (null !== self::$loader) {
             return self::$loader;
         }
 
+        require __DIR__ . '/platform_check.php';
+
         spl_autoload_register(array('ComposerAutoloaderInit0c2ece1e11bee92ad2795b7f6d0eafbe', 'loadClassLoader'), true, true);
-        self::$loader = $loader = new \Composer\Autoload\ClassLoader();
+        self::$loader = $loader = new \Composer\Autoload\ClassLoader(\dirname(\dirname(__FILE__)));
         spl_autoload_unregister(array('ComposerAutoloaderInit0c2ece1e11bee92ad2795b7f6d0eafbe', 'loadClassLoader'));
 
         $useStaticLoader = PHP_VERSION_ID >= 50600 && !defined('HHVM_VERSION') && (!function_exists('zend_loader_file_encoded') || !zend_loader_file_encoded());
         if ($useStaticLoader) {
-            require_once __DIR__ . '/autoload_static.php';
+            require __DIR__ . '/autoload_static.php';
 
             call_user_func(\Composer\Autoload\ComposerStaticInit0c2ece1e11bee92ad2795b7f6d0eafbe::getInitializer($loader));
+        } else {
+            $map = require __DIR__ . '/autoload_namespaces.php';
+            foreach ($map as $namespace => $path) {
+                $loader->set($namespace, $path);
+            }
+
+            $map = require __DIR__ . '/autoload_psr4.php';
+            foreach ($map as $namespace => $path) {
+                $loader->setPsr4($namespace, $path);
+            }
+
+            $classMap = require __DIR__ . '/autoload_classmap.php';
+            if ($classMap) {
+                $loader->addClassMap($classMap);
+            }
         }
 
         $loader->register(true);
@@ -35,8 +55,7 @@ class ComposerAutoloaderInit0c2ece1e11bee92ad2795b7f6d0eafbe
         if ($useStaticLoader) {
             $includeFiles = Composer\Autoload\ComposerStaticInit0c2ece1e11bee92ad2795b7f6d0eafbe::$files;
         } else {
-            print_r('----------------authoload.php---');exit;
-         //   $includeFiles = require __DIR__ . '/autoload_files.php';
+            $includeFiles = require __DIR__ . '/autoload_files.php';
         }
         foreach ($includeFiles as $fileIdentifier => $file) {
             composerRequire0c2ece1e11bee92ad2795b7f6d0eafbe($fileIdentifier, $file);

@@ -57,7 +57,9 @@ class FanYouSystemGroupService
                     $value=json_decode($v['value']);
                     $a=[];
                     foreach($value as $t=>$kd){
-                        $a[$t]=ArrayHelper::toArray($kd)['value'];
+                      $arr = ArrayHelper::toArray($kd);
+                      $a[$t] = isset($arr['value']) ?  $arr['value'] : '';
+
                     }
                    // $a['show_order']=$v['show_order'];
                     $result[]=$a;

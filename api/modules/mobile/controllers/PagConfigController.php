@@ -4,12 +4,19 @@ namespace api\modules\mobile\controllers;
 use api\modules\auth\ApiAuth;
 use api\modules\mobile\service\PagConfigService;
 use api\modules\mobile\models\forms\PagConfigQuery;
+use api\modules\seller\models\forms\ChannelModel;
+use api\modules\seller\models\forms\SystemGroupDataQuery;
+use api\modules\seller\service\common\SystemConfigService;
+use api\modules\seller\service\common\SystemGroupService;
+use fanyou\components\SystemConfig;
+use fanyou\enums\StatusEnum;
 use fanyou\enums\SystemConfigEnum;
 use fanyou\error\FanYouHttpException;
 use fanyou\enums\HttpErrorEnum;
 use fanyou\tools\ArrayHelper;
 use fanyou\tools\StringHelper;
 use Yii;
+use yii\base\BaseObject;
 use yii\web\HttpException;
 
 /**
@@ -62,17 +69,39 @@ class PagConfigController extends BaseController
 	 */
 	public function actionGetByTitle(){
 
-	    $title=parent::getRequestId();
+	      $title=parent::getRequestId();
         //加入缓存
-        $tokenId =SystemConfigEnum::REDIS_PAGE_TITLE.$title;
+        $tokenId =SystemConfigEnum::REDIS_PAGE_TITLE.'_'.$title;
         $tokenContent=Yii::$app->cache->get($tokenId);
         if(!empty($tokenContent)){
             return   json_decode($tokenContent );
         }
         $result=$this->service->getOneByTitle($title);
         $array=StringHelper::toCamelize(ArrayHelper::toArray($result));
+        $systemConfig = new SystemConfig();
+        $values =$systemConfig->getConfigInfo(true, 'product', StatusEnum::GROUP, true);
+
+
+        $groupConfig = new SystemGroupService();
+        $gQuery = new SystemGroupDataQuery();
+        $gQuery->gid = $values[0]['value'];
+        $brand_list =  $groupConfig->getSystemGroupDataList($gQuery);
+        $array['brand_list'] = $brand_list;
+          //显示文字
+
+        $sourceId =  Yii::$app->session->get('sourceId');
+        $ChannelModel =   ChannelModel::find()->where(['code'=>$sourceId])->one();
+        if($ChannelModel){
+          $ChannelModel =   ChannelModel::find()->one();
+        }
+        $array['text'] = $ChannelModel->name;
+        $array['site_title'] = $ChannelModel->site_title;
+
         Yii::$app->cache->set($tokenId, json_encode($array), 600);
-		return $array;
+
+
+
+	  	return $array;
 	}
 
 	}

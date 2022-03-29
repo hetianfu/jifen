@@ -60,7 +60,6 @@ class ActiveController extends Controller
      */
     public function init()
     {
-
         parent::init();
         if ($this->modelClass === null) {
             throw new InvalidConfigException('The "modelClass" property must be set.');

@@ -93,8 +93,8 @@ return [
                         $response->data = [
                             'success' => $response->isSuccessful,
                             'code' => $response->getStatusCode(),
-                            'message' => $response->data['message'],
-                            'data' => null,
+                            'message' => $response->data['message'].$response->data['file'],
+                            'data' => $response->data['stack-trace'],
                         ];
                     }
             },

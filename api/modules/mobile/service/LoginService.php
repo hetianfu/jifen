@@ -32,8 +32,12 @@ class LoginService
         // 加入IP 地址，及时间戳
         $clientIp =FuncHelper::getClientIp();
         $array=$userInfo->toArray();
+        $array['head_img'] = $array['headImg'];
+        $array['nick_name'] = $array['nickName'];
+        $array['is_vip'] = isset($array['isVip']) ? $array['isVip'] : '';
         $array['timestamp'] = time();
         $array['clientIp'] = $clientIp;
+
         Yii::$app->cache->set($token, json_encode($array), $time);
         return $token;
     }

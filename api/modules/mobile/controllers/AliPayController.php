@@ -92,7 +92,10 @@ class AliPayController extends BaseController
         //商户订单号，商户网站订单系统中唯一订单号，必填
         $total_amount =$order['pay_amount'];
 
+
         $payRequestBuilder = new AlipayTradeWapPayContentBuilder();
+
+
         $payRequestBuilder->setBody('购买商品');
         $payRequestBuilder->setSubject('商城订单');
         $payRequestBuilder->setOutTradeNo($orderId);

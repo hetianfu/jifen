@@ -24,6 +24,9 @@ class BaseController extends ActiveController
       if(!$sourceId){
         $sourceId = Yii::$app->request->get('sourceId');
       }
+      if(!$sourceId){
+        $sourceId = 1;
+      }
       Yii::$app->session->set('sourceId',$sourceId);
     }
 
@@ -68,7 +71,11 @@ class BaseController extends ActiveController
 
     public function getUserCache()
     {
+      if(Yii::$app->user->identity){
         return Yii::$app->user->identity;
+      }else{
+        return ['id'=>'','mini_app_open_id'=>'','openId'=>'','nick_name'=>'','head_img'=>'','is_vip'=>''];
+      }
     }
     public function getUserCacheByName($name)
     {
@@ -87,13 +94,18 @@ class BaseController extends ActiveController
 
     public function getMpOpenId()
     {
+      if(isset($this->getUserCache()['openId'])){
         return $this->getUserCache()['openId'];
+      }else{
+        return '';
+      }
+
     }
     public function getRequestPost($withUserId = true,$unCamelize=false)
     {
         $params = Yii::$app->request->post();
         if ($withUserId) {
-            $userCache = Yii::$app->user->identity;
+            $userCache = $this->getUserCache();
             $params['user_id'] = (string)$userCache['id'];
             $params['nick_name'] = $userCache['nick_name'];
             $params['head_img'] = $userCache['head_img'];
@@ -109,7 +121,7 @@ class BaseController extends ActiveController
     {
         $params = Yii::$app->request->get();
         if ($withUserId) {
-            $userCache = Yii::$app->user->identity;
+            $userCache = $this->getUserCache();
             $params['userId'] = (string)$userCache['id'];
             $params['nickName'] = $userCache['nick_name'];
             $params['headImg'] = $userCache['head_img'];

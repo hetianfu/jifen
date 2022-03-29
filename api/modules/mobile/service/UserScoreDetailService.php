@@ -109,7 +109,7 @@ class UserScoreDetailService
      */
     public function getDeductScoreAmount($userId,$amount=0):float
     {
-        //TODO TODO
+
         // 用户积分抵扣比例  30积分 -->1 元 ，和订单金额抵扣比例不是同一个配置  订单100元可使用 1元
        // SCORE_CONVERT
         $scoreConfig=$this->scoreConfigService->getScoreConfig();

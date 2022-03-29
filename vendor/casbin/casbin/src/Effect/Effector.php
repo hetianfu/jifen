@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Effect;
 
 /**
@@ -18,11 +16,11 @@ abstract class Effector
     const DENY = 2;
 
     /**
-     * @param string $expr
-     * @param array  $effects
-     * @param array  $results
+     * @param $expr
+     * @param array $effects
+     * @param array $results
      *
-     * @return bool
+     * @return mixed
      */
-    abstract public function mergeEffects(string $expr, array $effects, array $results): bool;
+    abstract public function mergeEffects($expr, array $effects, array $results);
 }

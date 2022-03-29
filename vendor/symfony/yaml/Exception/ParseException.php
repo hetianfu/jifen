@@ -30,7 +30,7 @@ class ParseException extends RuntimeException
      * @param string|null     $parsedFile The file name where the error occurred
      * @param \Exception|null $previous   The previous exception
      */
-    public function __construct(string $message, int $parsedLine = -1, string $snippet = null, string $parsedFile = null, \Throwable $previous = null)
+    public function __construct($message, $parsedLine = -1, $snippet = null, $parsedFile = null, \Exception $previous = null)
     {
         $this->parsedFile = $parsedFile;
         $this->parsedLine = $parsedLine;
@@ -121,7 +121,12 @@ class ParseException extends RuntimeException
         }
 
         if (null !== $this->parsedFile) {
-            $this->message .= sprintf(' in %s', json_encode($this->parsedFile, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            if (\PHP_VERSION_ID >= 50400) {
+                $jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+            } else {
+                $jsonOptions = 0;
+            }
+            $this->message .= sprintf(' in %s', json_encode($this->parsedFile, $jsonOptions));
         }
 
         if ($this->parsedLine >= 0) {

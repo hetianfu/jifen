@@ -1,13 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Persist\Adapters;
 
 use Casbin\Exceptions\CasbinException;
-use Casbin\Exceptions\InvalidFilePathException;
 use Casbin\Exceptions\NotImplementedException;
-use Casbin\Model\Model;
 use Casbin\Persist\Adapter;
 use Casbin\Persist\AdapterHelper;
 use Casbin\Util\Util;
@@ -33,7 +29,7 @@ class FileAdapter implements Adapter
      *
      * @param string $filePath
      */
-    public function __construct(string $filePath)
+    public function __construct($filePath)
     {
         $this->filePath = $filePath;
     }
@@ -43,12 +39,14 @@ class FileAdapter implements Adapter
      *
      * @param \Casbin\Model\Model $model
      *
+     * @return mixed|void
+     *
      * @throws CasbinException
      */
-    public function loadPolicy(Model $model): void
+    public function loadPolicy($model)
     {
         if (!file_exists($this->filePath)) {
-            throw new InvalidFilePathException('invalid file path, file path cannot be empty');
+            throw new CasbinException('invalid file path, file path cannot be empty');
         }
 
         $this->loadPolicyFile($model);
@@ -59,18 +57,20 @@ class FileAdapter implements Adapter
      *
      * @param \Casbin\Model\Model $model
      *
+     * @return bool|int
+     *
      * @throws CasbinException
      */
-    public function savePolicy(Model $model): void
+    public function savePolicy($model)
     {
         if ('' == $this->filePath) {
-            throw new InvalidFilePathException('invalid file path, file path cannot be empty');
+            throw new CasbinException('invalid file path, file path cannot be empty');
         }
 
         $writeString = '';
 
-        if (isset($model['p'])) {
-            foreach ($model['p'] as $ptype => $ast) {
+        if (isset($model->model['p'])) {
+            foreach ($model->model['p'] as $ptype => $ast) {
                 foreach ($ast->policy as $rule) {
                     $writeString .= $ptype.', ';
                     $writeString .= Util::arrayToString($rule);
@@ -79,8 +79,8 @@ class FileAdapter implements Adapter
             }
         }
 
-        if (isset($model['g'])) {
-            foreach ($model['g'] as $ptype => $ast) {
+        if (isset($model->model['g'])) {
+            foreach ($model->model['g'] as $ptype => $ast) {
                 foreach ($ast->policy as $rule) {
                     $writeString .= $ptype.', ';
                     $writeString .= Util::arrayToString($rule);
@@ -89,32 +89,29 @@ class FileAdapter implements Adapter
             }
         }
 
-        $this->savePolicyFile(rtrim($writeString, PHP_EOL));
+        return $this->savePolicyFile(rtrim($writeString, PHP_EOL));
     }
 
     /**
      * @param \Casbin\Model\Model $model
      */
-    protected function loadPolicyFile(Model $model): void
+    public function loadPolicyFile($model)
     {
         $file = fopen($this->filePath, 'rb');
-
-        if (false === $file) {
-            throw new InvalidFilePathException(sprintf('Unable to access to the specified path "%s"', $this->filePath));
-        }
-
-        while ($line = fgets($file)) { 
+        while ($line = fgets($file)) {
             $this->loadPolicyLine(trim($line), $model);
-        }     
+        }
         fclose($file);
     }
 
     /**
      * @param string $text
+     *
+     * @return bool|int
      */
-    protected function savePolicyFile(string $text): void
+    public function savePolicyFile($text)
     {
-        file_put_contents($this->filePath, $text, LOCK_EX);
+        return file_put_contents($this->filePath, $text, LOCK_EX);
     }
 
     /**
@@ -124,9 +121,11 @@ class FileAdapter implements Adapter
      * @param string $ptype
      * @param array  $rule
      *
+     * @return mixed|void
+     *
      * @throws NotImplementedException
      */
-    public function addPolicy(string $sec, string $ptype, array $rule): void
+    public function addPolicy($sec, $ptype, $rule)
     {
         throw new NotImplementedException('not implemented');
     }
@@ -138,9 +137,11 @@ class FileAdapter implements Adapter
      * @param string $ptype
      * @param array  $rule
      *
+     * @return mixed|void
+     *
      * @throws NotImplementedException
      */
-    public function removePolicy(string $sec, string $ptype, array $rule): void
+    public function removePolicy($sec, $ptype, $rule)
     {
         throw new NotImplementedException('not implemented');
     }
@@ -151,11 +152,13 @@ class FileAdapter implements Adapter
      * @param string $sec
      * @param string $ptype
      * @param int    $fieldIndex
-     * @param string ...$fieldValues
+     * @param mixed  ...$fieldValues
+     *
+     * @return mixed|void
      *
      * @throws NotImplementedException
      */
-    public function removeFilteredPolicy(string $sec, string $ptype, int $fieldIndex, string ...$fieldValues): void
+    public function removeFilteredPolicy($sec, $ptype, $fieldIndex, ...$fieldValues)
     {
         throw new NotImplementedException('not implemented');
     }

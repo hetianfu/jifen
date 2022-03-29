@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Model;
 
 use Casbin\Util\BuiltinOperations;
@@ -13,16 +11,13 @@ use Casbin\Util\BuiltinOperations;
  */
 class FunctionMap
 {
-    /**
-     * @var array<string, \Closure>
-     */
     private $functions = [];
 
     /**
-     * @param string   $name
+     * @param $name
      * @param \Closure $func
      */
-    public function addFunction(string $name, \Closure $func): void
+    public function addFunction($name, \Closure $func)
     {
         $this->functions[$name] = $func;
     }
@@ -32,7 +27,7 @@ class FunctionMap
      *
      * @return FunctionMap
      */
-    public static function loadFunctionMap(): self
+    public static function loadFunctionMap()
     {
         $fm = new self();
 
@@ -46,7 +41,7 @@ class FunctionMap
             return BuiltinOperations::regexMatchFunc(...$args);
         });
         $fm->addFunction('ipMatch', function (...$args) {
-            return BuiltinOperations::ipMatchFunc(...$args);
+            return BuiltinOperations::iPMatchFunc(...$args);
         });
 
         return $fm;
@@ -55,7 +50,7 @@ class FunctionMap
     /**
      * @return array
      */
-    public function getFunctions(): array
+    public function getFunctions()
     {
         return $this->functions;
     }

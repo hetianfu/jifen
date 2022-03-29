@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Config;
 
 use Casbin\Exceptions\CasbinException;
@@ -11,7 +9,7 @@ use Casbin\Exceptions\CasbinException;
  *
  * @author techlee@qq.com
  */
-final class Config implements ConfigContract
+class Config implements ConfigContract
 {
     const DEFAULT_SECTION = 'default';
 
@@ -21,9 +19,6 @@ final class Config implements ConfigContract
 
     const DEFAULT_MULTI_LINE_SEPARATOR = '\\';
 
-    /**
-     * @var array<string, array<string, string>>
-     */
     public $data = [];
 
     /**
@@ -31,9 +26,9 @@ final class Config implements ConfigContract
      *
      * @param string $confName
      *
-     * @return ConfigContract
+     * @return static
      */
-    public static function newConfig(string $confName): ConfigContract
+    public static function newConfig($confName)
     {
         $c = new static();
         $c->parse($confName);
@@ -46,9 +41,9 @@ final class Config implements ConfigContract
      *
      * @param string $text
      *
-     * @return ConfigContract
+     * @return static
      */
-    public static function newConfigFromText(string $text): ConfigContract
+    public static function newConfigFromText($text)
     {
         $c = new static();
         $c->parseBuffer($text);
@@ -65,7 +60,7 @@ final class Config implements ConfigContract
      *
      * @return bool
      */
-    public function addConfig(string $section, string $option, string $value): bool
+    public function addConfig($section, $option, $value)
     {
         if (empty($section)) {
             $section = self::DEFAULT_SECTION;
@@ -87,7 +82,7 @@ final class Config implements ConfigContract
      *
      * @throws CasbinException
      */
-    private function parse(string $fname): bool
+    private function parse($fname)
     {
         $buf = file_get_contents($fname);
 
@@ -103,9 +98,9 @@ final class Config implements ConfigContract
      *
      * @throws CasbinException
      */
-    private function parseBuffer(string $buf): bool
+    private function parseBuffer($buf)
     {
-        $section = '';
+        $section = null;
         $lineNum = 0;
         $buffer = '';
         $canWrite = null;
@@ -113,7 +108,7 @@ final class Config implements ConfigContract
         $buf = preg_replace('/[\r\n]+/', PHP_EOL, $buf);
         $buf = explode(PHP_EOL, $buf);
 
-        for ($i = 0, $len = \count($buf); $i <= $len; ++$i) {
+        for ($i = 0; $i <= \count($buf); ++$i) {
             if ($canWrite) {
                 $this->write($section, $lineNum, $buffer);
                 $canWrite = false;
@@ -158,16 +153,15 @@ final class Config implements ConfigContract
     /**
      * @param string $section
      * @param int    $lineNum
-     * @param string $b
+     * @param $b
      *
      * @throws CasbinException
      */
-    private function write(string $section, int $lineNum, string &$b): void
+    private function write($section, $lineNum, &$b)
     {
         if (\strlen($b) <= 0) {
             return;
         }
-
         $optionVal = explode('=', $b, 2);
 
         if (2 != \count($optionVal)) {
@@ -189,7 +183,7 @@ final class Config implements ConfigContract
      *
      * @return string
      */
-    public function getString(string $key): string
+    public function getString($key)
     {
         return $this->get($key);
     }
@@ -202,7 +196,7 @@ final class Config implements ConfigContract
      *
      * @return array
      */
-    public function getStrings(string $key): array
+    public function getStrings($key)
     {
         $v = $this->get($key);
         if ('' == $v) {
@@ -220,7 +214,7 @@ final class Config implements ConfigContract
      *
      * @throws CasbinException
      */
-    public function set(string $key, string $value): void
+    public function set($key, $value)
     {
         if (0 == \strlen($key)) {
             throw new CasbinException('key is empty');
@@ -245,7 +239,7 @@ final class Config implements ConfigContract
      *
      * @return string
      */
-    public function get(string $key): string
+    public function get($key)
     {
         $keys = explode('::', $key);
         if (\count($keys) >= 2) {

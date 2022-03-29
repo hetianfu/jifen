@@ -297,7 +297,11 @@ class SearchModel extends Model
                 foreach ((array)$attributes as $attribute) {
                     // $attributeName = str_replace('.', '_', $relation) . '_' . $attribute;
                     $attributeName = $relation . '.' . $attribute;
-                    $tableAttribute = $this->internalRelations[$relation]['tableName'] . '.' . $attribute;
+                    if(isset( $this->internalRelations[$relation])){
+                      $tableAttribute = $this->internalRelations[$relation]['tableName'] . '.' . $attribute;
+                    }else{
+                      $tableAttribute = '.' . $attribute;
+                    }
                     $this->rules[] = [$attributeName, 'safe'];
                     $this->scenarios[$this->scenario][] = $attributeName;
                     $this->attributes[$attributeName] = '';

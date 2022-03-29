@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Rbac;
 
 /**
@@ -15,7 +13,7 @@ interface RoleManager
     /**
      * clears all stored data and resets the role manager to the initial state.
      */
-    public function clear(): void;
+    public function clear();
 
     /**
      * adds the inheritance link between role: name1 and role: name2.
@@ -24,9 +22,9 @@ interface RoleManager
      *
      * @param string $name1
      * @param string $name2
-     * @param string ...$domain
+     * @param string $domain
      */
-    public function addLink(string $name1, string $name2, string ...$domain): void;
+    public function addLink($name1, $name2, $domain = '');
 
     /**
      * deletes the inheritance link between role: name1 and role: name2.
@@ -35,9 +33,9 @@ interface RoleManager
      *
      * @param string $name1
      * @param string $name2
-     * @param string ...$domain
+     * @param string $domain
      */
-    public function deleteLink(string $name1, string $name2, string ...$domain): void;
+    public function deleteLink($name1, $name2, $domain = '');
 
     /**
      * determines whether role: name1 inherits role: name2.
@@ -45,36 +43,36 @@ interface RoleManager
      *
      * @param string $name1
      * @param string $name2
-     * @param string ...$domain
+     * @param string $domain
      *
      * @return bool
      */
-    public function hasLink(string $name1, string $name2, string ...$domain): bool;
+    public function hasLink($name1, $name2, $domain = '');
 
     /**
      * gets the roles that a subject inherits.
      * domain is a prefix to the roles.
      *
      * @param string $name
-     * @param string ...$domain
+     * @param string $domain
      *
      * @return array
      */
-    public function getRoles(string $name, string ...$domain): array;
+    public function getRoles($name, $domain = '');
 
     /**
      * gets the users that inherits a subject.
      * domain is an unreferenced parameter here, may be used in other implementations.
      *
      * @param string $name
-     * @param string ...$domain
+     * @param string $domain
      *
      * @return array
      */
-    public function getUsers(string $name, string ...$domain): array;
+    public function getUsers($name, $domain = '');
 
     /**
      * prints all the roles to log.
      */
-    public function printRoles(): void;
+    public function printRoles();
 }

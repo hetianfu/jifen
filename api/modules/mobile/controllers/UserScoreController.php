@@ -9,6 +9,8 @@ use api\modules\mobile\service\SystemGroupService;
 use api\modules\mobile\service\UserInfoService;
 use api\modules\mobile\service\UserScoreDetailService;
 use api\modules\mobile\service\UserScoreService;
+use api\modules\seller\models\forms\ChannelModel;
+use api\modules\seller\service\ChannelService;
 use fanyou\components\SystemConfig;
 use fanyou\components\systemDrive\ArrayColumn;
 use fanyou\enums\entity\ScoreTypeEnum;
@@ -95,8 +97,13 @@ class UserScoreController extends BaseController
             $groupInfo = $this->groupService->getOneById($array['sign_config']);
             $gValues = FanYouSystemGroupService::getSystemGroupDate($groupInfo, false);
             //缓存300秒，过期重获 资源
-            Yii::$app->cache->set($tokenId, json_encode($gValues['items']), 300);
-            return $gValues['items'];
+            $item_arr = $gValues['items'];
+            foreach ($item_arr as $key=>&$row){
+              $row['day'] = date('m.d',time()+24*3600*$key);
+            }
+
+            Yii::$app->cache->set($tokenId, json_encode($item_arr), 300);
+            return $item_arr;
         }
 
         return [];

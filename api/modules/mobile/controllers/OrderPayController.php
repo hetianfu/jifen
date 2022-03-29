@@ -388,8 +388,6 @@ class OrderPayController extends BaseController
         $userInfo = $existUser;
         unset($userInfo->source_json);
         if (!empty($userInfo)) {
-          //TODO
-          //TODO
           $token = Yii::$app->request->getHeaders()['access-token'];
           $this->loginService->resetAuthKey($token, $userInfo, NumberEnum::TEN_DAYS);
         }
@@ -586,7 +584,6 @@ class OrderPayController extends BaseController
       }
       unset($array['openid']);
       unset($array['attach']);
-
       $unifyPay = $this->wxPayService->unifyPayOrder($array);
       $prePayId = $unifyPay['prepay_id'];
       $mwebUrl = $unifyPay['mweb_url'];
@@ -607,6 +604,7 @@ class OrderPayController extends BaseController
         $proxyPay->mini_app_id = $miniAppId;
         $proxyPay->prepay_id = $prePayId;
         $proxyPay->detail = $mwebUrl;
+
         $this->proxyPayService->addProxyPay($proxyPay);
         return $mwebUrl;
       }

@@ -34,6 +34,7 @@ class AliPayCertLoad
 
         $domain = FanYouSystemGroupService::getDm();
         $configService = new SystemConfig();
+        //TODO 支付宝支付配置信息获取
         $aliPayConfig = $configService->getConfigInfo(true, SystemConfigEnum::ALI_PAY, StatusEnum::SYSTEM);
         $config = ArrayColumn::getSystemConfigValue($aliPayConfig);
 

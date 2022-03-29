@@ -55,20 +55,27 @@ class ChannelController extends BaseController
    */
   public function actionWebLogIn()
   {
-    $mpOpenId = parent::getMpOpenId();
-    $userId = parent::getUserId();
+
+    if(parent::getUserCache()){
+      $mpOpenId = parent::getMpOpenId();
+      $userId = parent::getUserId();
+    }else{
+      $mpOpenId = '';
+      $userId = '';
+    }
+
     $phoneMode= Yii::$app->request->post("phoneMode");
     if (empty($mpOpenId)) {
       $mpOpenId = Yii::$app->request->post("openId");
     }
 
+
     if (!empty($mpOpenId)) {
-      $userInfo = UserInfoModel::find()->select(['id', 'total_score','code', 'open_id', 'amount', 'telephone', 'sex', 'identify', 'source_id', 'source_json'])->where(['open_id' => $mpOpenId])->one();
+      $userInfo = UserInfoModel::find()->select(['id', 'total_score','code', 'open_id', 'amount', 'telephone', 'sex', 'identify', 'source_id', 'source_json','nick_name','head_img','is_vip'])->where(['open_id' => $mpOpenId])->one();
     } else if (!empty($userId)) {
-      $userInfo = UserInfoModel::find()->select(['id', 'total_score','code', 'open_id', 'amount', 'telephone', 'sex', 'identify', 'source_id', 'source_json'])->where(['id' => $userId])->one();
+      $userInfo = UserInfoModel::find()->select(['id', 'total_score','code', 'open_id', 'amount', 'telephone', 'sex', 'identify', 'source_id', 'source_json','nick_name','head_img','is_vip'])->where(['id' => $userId])->one();
 
     }
-
 
     if (empty($userInfo)) {
       //渠道来源
@@ -89,7 +96,8 @@ class ChannelController extends BaseController
         $userInfo->open_id = $mpOpenId;
       }
 
-      $channel =$this->service->getHtmlOneById($sourceId,!empty($sourceId));
+
+      $channel =$this->service->getOneById($sourceId);
 
 
       if (!empty($channel)) {
@@ -101,6 +109,11 @@ class ChannelController extends BaseController
 
       $userInfo->last_log_in_ip = UserHostIp::getIP();
       $userInfo->last_log_in_at = time();
+      $userInfo->nick_name = '';
+      $userInfo->head_img = '';
+      $userInfo->is_vip = '';
+
+
       $userInfo->insert();
     } else {
 
@@ -109,6 +122,7 @@ class ChannelController extends BaseController
     }
 
     $userResult = new UserInfoResult();
+
     if (!empty($userInfo)) {
       $userResult->channel = $channel;
       unset($userInfo->source_json);

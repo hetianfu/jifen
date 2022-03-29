@@ -178,6 +178,8 @@ class ListRenderer extends BaseRenderer
             $options = $this->rowOptions;
         }
 
+        $options['data-index'] = '{' . $this->getIndexPlaceholder() . '}';
+
         Html::addCssClass($options, 'multiple-input-list__item');
 
         return $options;
@@ -201,7 +203,7 @@ class ListRenderer extends BaseRenderer
          * via the $options array
          */
         $options = ['id' => $id];
-        if (substr($id, -4) === 'drag') {
+        if ($column->type === BaseColumn::TYPE_DRAGCOLUMN) {
             $options = ArrayHelper::merge($options, ['class' => $this->iconMap['drag-handle']]);
         }
 

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Model;
 
 use Casbin\Exceptions\CasbinException;
@@ -56,7 +54,7 @@ class Assertion
      *
      * @throws CasbinException
      */
-    public function buildRoleLinks(RoleManager $rm): void
+    public function buildRoleLinks(RoleManager $rm)
     {
         $this->rM = $rm;
         $count = substr_count($this->value, '_');

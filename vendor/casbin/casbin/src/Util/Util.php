@@ -1,10 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Util;
-
-use Casbin\Exceptions\CasbinException;
 
 /**
  * Class Util.
@@ -20,7 +16,7 @@ class Util
      *
      * @return string
      */
-    public static function escapeAssertion(string $s): string
+    public static function escapeAssertion($s)
     {
         if (0 === strpos($s, 'r.')) {
             $s = substr_replace($s, 'r_', 0, 2);
@@ -33,10 +29,6 @@ class Util
             return $m[1].$m[2].'_';
         }, $s);
 
-        if (null === $s) {
-            throw new CasbinException(sprintf('Unable to escape assertion "%s"', $s));
-        }
-
         return $s;
     }
 
@@ -47,7 +39,7 @@ class Util
      *
      * @return string
      */
-    public static function removeComments(string $s): string
+    public static function removeComments($s)
     {
         $pos = strpos($s, '#');
 
@@ -61,7 +53,7 @@ class Util
      *
      * @return string
      */
-    public static function arrayToString(array $s): string
+    public static function arrayToString($s)
     {
         return implode(', ', $s);
     }
@@ -71,7 +63,7 @@ class Util
      *
      * @param array $s
      */
-    public static function arrayRemoveDuplicates(array &$s): void
+    public static function arrayRemoveDuplicates(&$s)
     {
         $s = array_keys(array_flip($s));
     }

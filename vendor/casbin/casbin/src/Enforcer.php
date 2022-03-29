@@ -1,13 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin;
 
 use Casbin\Effect\DefaultEffector;
 use Casbin\Effect\Effector;
 use Casbin\Exceptions\CasbinException;
-use Casbin\Exceptions\InvalidFilePathException;
 use Casbin\Model\FunctionMap;
 use Casbin\Model\Model;
 use Casbin\Persist\Adapter;
@@ -18,7 +15,6 @@ use Casbin\Rbac\DefaultRoleManager\RoleManager as DefaultRoleManager;
 use Casbin\Rbac\RoleManager;
 use Casbin\Util\BuiltinOperations;
 use Casbin\Log\Log;
-use Casbin\Util\Util;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
@@ -64,14 +60,14 @@ class Enforcer
     /**
      * Adapter.
      *
-     * @var Adapter|null
+     * @var Adapter
      */
     protected $adapter;
 
     /**
      * Watcher.
      *
-     * @var Watcher|null
+     * @var watcher
      */
     protected $watcher;
 
@@ -126,15 +122,15 @@ class Enforcer
     public function __construct(...$params)
     {
         $parsedParamLen = 0;
-        $paramLen = \count($params);
-        if ($paramLen >= 1) {
-            if (\is_bool($enableLog = $params[$paramLen - 1])) {
+        if (\count($params) >= 1) {
+            if (\is_bool($params[\count($params) - 1])) {
+                $enableLog = $params[\count($params) - 1];
                 $this->enableLog($enableLog);
                 ++$parsedParamLen;
             }
         }
 
-        if (2 == $paramLen - $parsedParamLen) {
+        if (2 == \count($params) - $parsedParamLen) {
             $p0 = $params[0];
             if (\is_string($p0)) {
                 $p1 = $params[1];
@@ -147,18 +143,17 @@ class Enforcer
                 if (\is_string($params[1])) {
                     throw new CasbinException('Invalid parameters for enforcer.');
                 } else {
-
                     $this->initWithModelAndAdapter($p0, $params[1]);
                 }
             }
-        } elseif (1 == $paramLen - $parsedParamLen) {
+        } elseif (1 == \count($params) - $parsedParamLen) {
             $p0 = $params[0];
             if (\is_string($p0)) {
                 $this->initWithFile($p0, '');
             } else {
                 $this->initWithModelAndAdapter($p0, null);
             }
-        } elseif (0 == $paramLen - $parsedParamLen) {
+        } elseif (0 == \count($params) - $parsedParamLen) {
             // pass
         } else {
             throw new CasbinException('Invalid parameters for enforcer.');
@@ -168,12 +163,12 @@ class Enforcer
     /**
      * initializes an enforcer with a model file and a policy file.
      *
-     * @param string $modelPath
-     * @param string $policyPath
+     * @param $modelPath
+     * @param $policyPath
      *
      * @throws CasbinException
      */
-    public function initWithFile(string $modelPath, string $policyPath): void
+    public function initWithFile($modelPath, $policyPath)
     {
         $adapter = new FileAdapter($policyPath);
         $this->initWithAdapter($modelPath, $adapter);
@@ -182,12 +177,12 @@ class Enforcer
     /**
      * initializes an enforcer with a database adapter.
      *
-     * @param string  $modelPath
+     * @param $modelPath
      * @param Adapter $adapter
      *
      * @throws CasbinException
      */
-    public function initWithAdapter(string $modelPath, Adapter $adapter): void
+    public function initWithAdapter($modelPath, Adapter $adapter)
     {
         $m = Model::newModelFromFile($modelPath);
         $this->initWithModelAndAdapter($m, $adapter);
@@ -201,9 +196,8 @@ class Enforcer
      * @param Model        $m
      * @param Adapter|null $adapter
      */
-    public function initWithModelAndAdapter(Model $m, Adapter $adapter = null): void
+    public function initWithModelAndAdapter(Model $m, $adapter)
     {
-
         $this->adapter = $adapter;
 
         $this->model = $m;
@@ -213,19 +207,19 @@ class Enforcer
 
         $this->initialize();
 
-        // Do not initialize the full policy when using a filtered adapter
-       // $ok = $this->adapter instanceof FilteredAdapter ? $this->adapter->isFiltered() : false;
-
-        if (!\is_null($this->adapter) && !$ok) {
-
-            $this->loadPolicy();
+        if (null !== $this->adapter) {
+            try {
+                $this->loadPolicy();
+            } catch (\Exception $e) {
+                // error intentionally ignored
+            }
         }
     }
 
     /**
      * initializes an enforcer with a database adapter.
      */
-    protected function initialize(): void
+    protected function initialize()
     {
         $this->rm = new DefaultRoleManager(10);
         $this->eft = new DefaultEffector();
@@ -242,11 +236,11 @@ class Enforcer
      *
      * @throws CasbinException
      */
-    public function loadModel(): void
+    public function loadModel()
     {
         $this->model = Model::newModelFromFile($this->modelPath);
         $this->model->printModel();
-        $this->fm = Model::loadFunctionMap();
+        $this->fm = Model::LoadFunctionMap();
 
         $this->initialize();
     }
@@ -256,7 +250,7 @@ class Enforcer
      *
      * @return Model
      */
-    public function getModel(): Model
+    public function getModel()
     {
         return $this->model;
     }
@@ -266,7 +260,7 @@ class Enforcer
      *
      * @param Model $model
      */
-    public function setModel(Model $model): void
+    public function setModel(Model $model)
     {
         $this->model = $model;
         $this->fm = $this->model->loadFunctionMap();
@@ -279,7 +273,7 @@ class Enforcer
      *
      * @return Adapter
      */
-    public function getAdapter(): Adapter
+    public function getAdapter()
     {
         return $this->adapter;
     }
@@ -289,7 +283,7 @@ class Enforcer
      *
      * @param Adapter $adapter
      */
-    public function setAdapter(Adapter $adapter): void
+    public function setAdapter(Adapter $adapter)
     {
         $this->adapter = $adapter;
     }
@@ -299,7 +293,7 @@ class Enforcer
      *
      * @param Watcher $watcher
      */
-    public function setWatcher(Watcher $watcher): void
+    public function setWatcher(Watcher $watcher)
     {
         $this->watcher = $watcher;
         $this->watcher->setUpdateCallback(function () {
@@ -308,21 +302,11 @@ class Enforcer
     }
 
     /**
-     * gets the current role manager.
-     *
-     * @return RoleManager
-     */
-    public function getRoleManager(): RoleManager
-    {
-        return $this->rm;
-    }
-
-    /**
      * sets the current role manager.
      *
      * @param RoleManager $rm
      */
-    public function setRoleManager(RoleManager $rm): void
+    public function setRoleManager(RoleManager $rm)
     {
         $this->rm = $rm;
     }
@@ -332,7 +316,7 @@ class Enforcer
      *
      * @param Effector $eft
      */
-    public function setEffector(Effector $eft): void
+    public function setEffector(Effector $eft)
     {
         $this->eft = $eft;
     }
@@ -340,7 +324,7 @@ class Enforcer
     /**
      * clears all policy.
      */
-    public function clearPolicy(): void
+    public function clearPolicy()
     {
         $this->model->clearPolicy();
     }
@@ -348,15 +332,10 @@ class Enforcer
     /**
      * reloads the policy from file/database.
      */
-    public function loadPolicy(): void
+    public function loadPolicy()
     {
         $this->model->clearPolicy();
-
-        try {
-            $this->adapter->loadPolicy($this->model);
-        } catch (InvalidFilePathException $e) {
-            //throw $e;
-        }
+        $this->adapter->loadPolicy($this->model);
 
         $this->model->printPolicy();
         if ($this->autoBuildRoleLinks) {
@@ -367,20 +346,20 @@ class Enforcer
     /**
      * reloads a filtered policy from file/database.
      *
-     * @param mixed $filter
+     * @param $filter
      *
      * @throws CasbinException
      */
-    public function loadFilteredPolicy($filter): void
+    public function loadFilteredPolicy($filter)
     {
         $this->model->clearPolicy();
 
         if ($this->adapter instanceof FilteredAdapter) {
             $filteredAdapter = $this->adapter;
-            $filteredAdapter->loadFilteredPolicy($this->model, $filter);
         } else {
             throw new CasbinException('filtered policies are not supported by this adapter');
         }
+        $filteredAdapter->loadFilteredPolicy($this->model, $filter);
 
         $this->model->printPolicy();
         if ($this->autoBuildRoleLinks) {
@@ -393,15 +372,14 @@ class Enforcer
      *
      * @return bool
      */
-    public function isFiltered(): bool
+    public function isFiltered()
     {
         if (!$this->adapter instanceof FilteredAdapter) {
             return false;
         }
 
         $filteredAdapter = $this->adapter;
-
-        return $filteredAdapter->isFiltered();
+        $filteredAdapter->isFiltered();
     }
 
     /**
@@ -411,7 +389,7 @@ class Enforcer
      *
      * @throws CasbinException
      */
-    public function savePolicy(): void
+    public function savePolicy()
     {
         if ($this->isFiltered()) {
             throw new CasbinException('cannot save a filtered policy');
@@ -420,7 +398,7 @@ class Enforcer
         $this->adapter->savePolicy($this->model);
 
         if (null !== $this->watcher) {
-            $this->watcher->update();
+            return $this->watcher->update();
         }
     }
 
@@ -429,7 +407,7 @@ class Enforcer
      *
      * @param bool $enabled
      */
-    public function enableEnforce(bool $enabled = true): void
+    public function enableEnforce($enabled = true)
     {
         $this->enabled = $enabled;
     }
@@ -439,7 +417,7 @@ class Enforcer
      *
      * @param bool $enabled
      */
-    public function enableLog(bool $enabled = true): void
+    public function enableLog($enabled = true)
     {
         Log::getLogger()->enableLog($enabled);
     }
@@ -449,7 +427,7 @@ class Enforcer
      *
      * @param bool $autoSave
      */
-    public function enableAutoSave(bool $autoSave = true): void
+    public function enableAutoSave($autoSave = true)
     {
         $this->autoSave = $autoSave;
     }
@@ -459,7 +437,7 @@ class Enforcer
      *
      * @param bool $autoBuildRoleLinks
      */
-    public function enableAutoBuildRoleLinks(bool $autoBuildRoleLinks = true): void
+    public function enableAutoBuildRoleLinks($autoBuildRoleLinks = true)
     {
         $this->autoBuildRoleLinks = $autoBuildRoleLinks;
     }
@@ -467,24 +445,22 @@ class Enforcer
     /**
      * manually rebuild the role inheritance relations.
      */
-    public function buildRoleLinks(): void
+    public function buildRoleLinks()
     {
         $this->rm->clear();
         $this->model->buildRoleLinks($this->rm);
     }
 
     /**
-     * use a custom matcher to decides whether a "subject" can access a "object" with the operation "action",
-     * input parameters are usually: (matcher, sub, obj, act), use model matcher by default when matcher is "".
+     * decides whether a "subject" can access a "object" with the operation "action", input parameters are usually: (sub, obj, act).
      *
-     * @param string $matcher
-     * @param mixed  ...$rvals
+     * @param mixed ...$rvals
      *
      * @return bool|mixed
      *
      * @throws CasbinException
      */
-    protected function enforcing(string $matcher, ...$rvals): bool
+    public function enforce(...$rvals)
     {
         if (!$this->enabled) {
             return true;
@@ -492,30 +468,23 @@ class Enforcer
 
         $functions = $this->fm->getFunctions();
 
-        if (isset($this->model['g'])) {
-            foreach ($this->model['g'] as $key => $ast) {
+        if (isset($this->model->model['g'])) {
+            foreach ($this->model->model['g'] as $key => $ast) {
                 $rm = $ast->rM;
-                $functions[$key] = BuiltinOperations::generateGFunction($rm);
+                $functions[$key] = BuiltinOperations::GenerateGFunction($rm);
             }
         }
 
-        if (!isset($this->model['m']['m'])) {
+        if (!isset($this->model->model['m']['m'])) {
             throw new CasbinException('model is undefined');
         }
 
-        $expString = '';
-        if ('' === $matcher) {
-            $expString = $this->getExpString($this->model['m']['m']->value);
-        } else {
-            $expString = Util::removeComments(Util::escapeAssertion($matcher));
-        }
+        $expString = $this->getExpString($this->model->model['m']['m']->value);
 
-        $rTokens = array_values($this->model['r']['r']->tokens);
-        $pTokens = array_values($this->model['p']['p']->tokens);
+        $rTokens = array_values($this->model->model['r']['r']->tokens);
+        $pTokens = array_values($this->model->model['p']['p']->tokens);
 
-        $rParameters = array_combine($rTokens, $rvals);
-
-        if (false === $rParameters) {
+        if (\count($rTokens) != \count($rvals)) {
             throw new CasbinException('invalid request size');
         }
 
@@ -525,18 +494,19 @@ class Enforcer
         $policyEffects = [];
         $matcherResults = [];
 
-        $policyLen = \count($this->model['p']['p']->policy);
+        $rParameters = array_combine($rTokens, $rvals);
+
+        $policyLen = \count($this->model->model['p']['p']->policy);
 
         if (0 != $policyLen) {
-            foreach ($this->model['p']['p']->policy as $i => $pvals) {
-                $parameters = array_combine($pTokens, $pvals);
-                if (false === $parameters) {
+            foreach ($this->model->model['p']['p']->policy as $i => $pvals) {
+                if (\count($pTokens) != \count($pvals)) {
                     throw new CasbinException('invalid policy size');
                 }
 
-                $parameters = array_merge($rParameters, $parameters);
-       
-                $result = $expressionLanguage->evaluate($expression, $parameters); 
+                $parameters = array_merge($rParameters, array_combine($pTokens, $pvals));
+                $result = $expressionLanguage->evaluate($expression, $parameters);
+
                 if (\is_bool($result)) {
                     if (!$result) {
                         $policyEffects[$i] = Effector::INDETERMINATE;
@@ -567,13 +537,13 @@ class Enforcer
                     $policyEffects[$i] = Effector::ALLOW;
                 }
 
-                if (isset($this->model['e']['e']) && 'priority(p_eft) || deny' == $this->model['e']['e']->value) {
+                if (isset($this->model->model['e']['e']) && 'priority(p_eft) || deny' == $this->model->model['e']['e']->value) {
                     break;
                 }
             }
         } else {
             $parameters = $rParameters;
-            foreach ($this->model['p']['p']->tokens as $token) {
+            foreach ($this->model->model['p']['p']->tokens as $token) {
                 $parameters[$token] = '';
             }
 
@@ -586,7 +556,7 @@ class Enforcer
             }
         }
 
-        $result = $this->eft->mergeEffects($this->model['e']['e']->value, $policyEffects, $matcherResults);
+        $result = $this->eft->mergeEffects($this->model->model['e']['e']->value, $policyEffects, $matcherResults);
 
         if (Log::getLogger()->isEnabled()) {
             $reqStr = 'Request: ';
@@ -604,7 +574,7 @@ class Enforcer
      *
      * @return ExpressionLanguage
      */
-    protected function getExpressionLanguage(array $functions): ExpressionLanguage
+    protected function getExpressionLanguage(array $functions)
     {
         $expressionLanguage = new ExpressionLanguage();
         foreach ($functions as $key => $func) {
@@ -623,7 +593,7 @@ class Enforcer
      *
      * @return string
      */
-    protected function getExpString(string $expString): string
+    protected function getExpString($expString)
     {
         return preg_replace_callback(
             '/([\s\S]*in\s+)\(([\s\S]+)\)([\s\S]*)/',
@@ -632,35 +602,5 @@ class Enforcer
             },
             $expString
         );
-    }
-
-    /**
-     * decides whether a "subject" can access a "object" with the operation "action", input parameters are usually: (sub, obj, act).
-     *
-     * @param mixed ...$rvals
-     *
-     * @return bool
-     *
-     * @throws CasbinException
-     */
-    public function enforce(...$rvals): bool
-    {
-        return $this->enforcing('', ...$rvals);
-    }
-
-    /**
-     * use a custom matcher to decides whether a "subject" can access a "object" with the operation "action",
-     * input parameters are usually: (matcher, sub, obj, act), use model matcher by default when matcher is "".
-     *
-     * @param string $matcher
-     * @param mixed  ...$rvals
-     *
-     * @return bool
-     *
-     * @throws CasbinException
-     */
-    public function enforceWithMatcher(string $matcher, ...$rvals): bool
-    {
-        return $this->enforcing($matcher, ...$rvals);
     }
 }

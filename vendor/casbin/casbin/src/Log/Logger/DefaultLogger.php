@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Casbin\Log\Logger;
 
 use Casbin\Log\Logger;
@@ -43,7 +41,7 @@ class DefaultLogger implements Logger
      *
      * @param bool $enable
      */
-    public function enableLog(bool $enable): void
+    public function enableLog($enable)
     {
         $this->enable = $enable;
     }
@@ -51,7 +49,7 @@ class DefaultLogger implements Logger
     /**
      * @return bool
      */
-    public function isEnabled(): bool
+    public function isEnabled()
     {
         return $this->enable;
     }
@@ -59,7 +57,7 @@ class DefaultLogger implements Logger
     /**
      * @param mixed ...$v
      */
-    public function write(...$v): void
+    public function write(...$v)
     {
         if ($this->enable) {
             $content = date('Y-m-d H:i:s ');
@@ -77,10 +75,10 @@ class DefaultLogger implements Logger
     }
 
     /**
-     * @param string $format
-     * @param mixed  ...$v
+     * @param $format
+     * @param mixed ...$v
      */
-    public function writef(string $format, ...$v): void
+    public function writef($format, ...$v)
     {
         if ($this->enable) {
             $content = date('Y-m-d H:i:s ');
@@ -91,9 +89,9 @@ class DefaultLogger implements Logger
     }
 
     /**
-     * @param string $content
+     * @param $content
      */
-    public function save(string $content): void
+    public function save($content)
     {
         $file = $this->path.DIRECTORY_SEPARATOR.$this->name;
         file_put_contents($file, $content, FILE_APPEND | LOCK_EX);

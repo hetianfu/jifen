@@ -108,7 +108,6 @@ class UserController extends BaseController
                 $userInfo->id = $id;
             }
         } else {
-            //TODO
             $userInfo = $this->userService->getOneByOpenId($openId);
             if (!empty($userInfo)) {
                 if($userInfo->telephone!=$account){
@@ -119,7 +118,6 @@ class UserController extends BaseController
             $userInfo = new UserInfoModel();
             $userInfo->id = $id;
             }
-            //TODO
         }
         $userInfo->open_id = $openId;
         $userInfo->union_id = $unionId;
@@ -143,7 +141,6 @@ class UserController extends BaseController
             $this->userService->updateUserInfoById($updateUserInfo);
             $userId =$updateUserInfo->id;
         }
-        //TODO ,注册 用户
         return ShopEmployeeModel::updateAll(['open_id' => $openId, 'union_id' => $unionId, 'user_id' => $userId], ['id' => $employee['id']]);
 
     }

@@ -33,8 +33,7 @@ class TestController extends BaseController
 
     public function actionTest()
     {
-        $db_config='1';
-        return $db_config;
+        return 0;
     }
 
 

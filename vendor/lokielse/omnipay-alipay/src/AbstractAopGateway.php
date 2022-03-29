@@ -161,6 +161,88 @@ abstract class AbstractAopGateway extends AbstractGateway
     /**
      * @return mixed
      */
+    public function getAlipayRootCert()
+    {
+        return $this->getParameter('alipay_root_cert');
+    }
+
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function setAlipayRootCert($value)
+    {
+        return $this->setParameter('alipay_root_cert', $value);
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getAlipayPublicCert()
+    {
+        return $this->getParameter('alipay_public_cert');
+    }
+
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function setAlipayPublicCert($value)
+    {
+        $this->setParameter('alipay_public_key', getPublicKey($value));
+
+        return $this->setParameter('alipay_public_cert', $value);
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getAppCert()
+    {
+        return $this->getParameter('app_cert');
+    }
+
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function setAppCert($value)
+    {
+        return $this->setParameter('app_cert', $value);
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getCheckAlipayPublicCert()
+    {
+        return $this->getParameter('check_alipay_public_cert');
+    }
+
+
+    /**
+     * @param bool $value
+     *
+     * @return $this
+     */
+    public function setCheckAlipayPublicCert($value)
+    {
+        return $this->setParameter('check_alipay_public_cert', $value);
+    }
+
+
+    /**
+     * @return mixed
+     */
     public function getEncryptKey()
     {
         return $this->getParameter('encrypt_key');
@@ -274,7 +356,12 @@ abstract class AbstractAopGateway extends AbstractGateway
      */
     public function setAlipayPublicKey($value)
     {
-        return $this->setParameter('alipay_public_key', $value);
+        // prevent public key overlay when certificate exist
+        if (!$this->getAlipayPublicCert()) {
+            return $this->setParameter('alipay_public_key', $value);
+        }
+
+        return $this;
     }
 
 
@@ -327,7 +414,7 @@ abstract class AbstractAopGateway extends AbstractGateway
     {
         $env = strtolower($value);
 
-        if (! isset($this->endpoints[$env])) {
+        if (!isset($this->endpoints[$env])) {
             throw new InvalidRequestException('The environment is invalid');
         }
 

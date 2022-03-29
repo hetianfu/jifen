@@ -82,7 +82,6 @@ class ProductReplyController extends BaseController
 		$query->setAttributes($this->getRequestGet(false));
 
 		if ( $query->validate()) {
-
 			return $this->service->getProductReplyPage( $query);
 		} else {
 			throw new FanYouHttpException(HttpErrorEnum::Unprocessable_Entity,parent::getModelError($query));

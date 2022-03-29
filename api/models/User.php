@@ -17,31 +17,26 @@ class User  implements IdentityInterface
     public static function findIdentity($id)
     {
         echo 11;exit;
-        // TODO: Implement findIdentity() method.
     }
 
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
         return ['access-token'=>'abcabc'];
-        // TODO: Implement findIdentityByAccessToken() method.
     }
 
     public function getId()
     {
         echo 11;exit;
-        // TODO: Implement getId() method.
     }
 
     public function getAuthKey()
     {
        return '31231';
-        // TODO: Implement getAuthKey() method.
     }
 
     public function validateAuthKey($authKey)
     {
         echo 11;exit;
-        // TODO: Implement validateAuthKey() method.
     }
 }
